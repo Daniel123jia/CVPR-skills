@@ -1,17 +1,18 @@
 # CVPR-skills
 
-一个面向 CVPR main conference papers 的 Codex / Claude Code Agent Skill 集合，用于从 CVF Open Access 采集、清洗、导出、完整性检查、会议级初步分析，以及单篇/少量 CVPR 论文精读。
+一个面向 CVPR main conference papers 的 Codex / Claude Code Agent Skill 集合，用于从 CVF Open Access 采集、清洗、导出、完整性检查、会议级初步分析，单篇/少量 CVPR 论文精读，以及多篇论文/阅读笔记的研究灵感挖掘。
 
-当前仓库只做 CVPR-skills，不扩展其他会议。当前包含两个 skill：`conference-cvpr` 和 `cvpr-paper-reader`。v1 专注 CVPR main conference papers，不新增其他会议 skill，不采集 workshops，不调用外部 enrichment API，不批量下载 PDF。
+当前仓库只做 CVPR-skills，不扩展其他会议。当前包含三个 skill：`conference-cvpr`、`cvpr-paper-reader` 和 `cvpr-idea-miner`。v1 专注 CVPR main conference papers，不新增其他会议 skill，不采集 workshops，不调用外部 enrichment API，不批量下载 PDF。
 
 ## Skill Navigator
 
-`skills/conference-cvpr/` 和 `skills/cvpr-paper-reader/` 是当前可触发 skill；`skills/_shared/` 只存放共享 schema、规则和模板，不作为独立 skill 使用。
+`skills/conference-cvpr/`、`skills/cvpr-paper-reader/` 和 `skills/cvpr-idea-miner/` 是当前可触发 skill；`skills/_shared/` 只存放共享 schema、规则和模板，不作为独立 skill 使用。
 
 | Skill | 边界 | 典型用途 |
 | --- | --- | --- |
-| `conference-cvpr` | 整届 CVPR 会议级 workflow | 整届 CVPR 论文采集、清洗、导出、完整性检查、会议级初步分析 |
-| `cvpr-paper-reader` | 单篇/少量 CVPR 论文级 reading workflow | 论文精读、方法提取、实验表、中文阅读笔记、局限性分析和研究灵感 |
+| `conference-cvpr` | 整届 CVPR 数据入口 | 整届 CVPR 论文采集、清洗、导出、完整性检查、会议级初步分析 |
+| `cvpr-paper-reader` | 单篇论文精读 | 论文精读、方法提取、实验表、中文阅读笔记、局限性分析 |
+| `cvpr-idea-miner` | 多篇论文/阅读笔记的研究灵感挖掘 | 方向归纳、研究空白发现、方法组合、idea cards、实验计划 |
 
 | 场景 | 你可以这样说 | Agent 路线 | 推荐入口 |
 | --- | --- | --- | --- |
@@ -24,8 +25,11 @@
 | 单篇论文精读 | “精读这篇 CVPR 论文” | `paper-summary -> method-extraction -> experiment-table -> limitations-and-ideas -> reading-note` | `skills/cvpr-paper-reader/` |
 | 方法/实验提取 | “提取这篇论文的方法 / 整理实验设置和结果” | `method-extraction` / `experiment-table` | 提供全文、PDF 解析文本或论文片段 |
 | 摘要级阅读 | “总结这篇 CVPR 论文” + title/abstract | `paper-summary` preliminary | 只能输出 preliminary summary |
+| 多篇论文找灵感 | “从这些 CVPR 论文找研究灵感” | `topic-map -> gap-analysis -> method-recombination -> idea-cards -> experiment-plan` | `skills/cvpr-idea-miner/` |
+| 阅读笔记生成 idea | “根据这些阅读笔记生成 idea” | `idea-cards` with `reader_notes` evidence | 读取 `cvpr-paper-reader` 输出 |
+| 方法组合 | “把这些 CVPR 方法模块组合一下” | `method-recombination` | 必须标记 evidence source |
 
-**边界很重要：** 只支持 CVPR main conference papers；不采集 workshops，不新增其他会议，不调用外部 enrichment API，不下载 PDF。`conference-cvpr` 不负责单篇精读，`cvpr-paper-reader` 不负责整届会议采集。
+**边界很重要：** 只支持 CVPR main conference papers；不采集 workshops，不新增其他会议，不调用外部 enrichment API，不下载 PDF。`conference-cvpr` 不负责单篇精读，`cvpr-paper-reader` 不负责整届会议采集，`cvpr-idea-miner` 不负责整届论文采集或单篇 PDF 解析。
 
 ## Repository Layout
 
@@ -55,7 +59,14 @@ CVPR-skills/
 │   │   ├── static/core/
 │   │   ├── references/workflows/
 │   │   └── scripts/
-│   └── cvpr-paper-reader/
+│   ├── cvpr-paper-reader/
+│   │   ├── README.md
+│   │   ├── SKILL.md
+│   │   ├── manifest.yaml
+│   │   ├── static/core/
+│   │   ├── references/workflows/
+│   │   └── scripts/
+│   └── cvpr-idea-miner/
 │       ├── README.md
 │       ├── SKILL.md
 │       ├── manifest.yaml
@@ -65,7 +76,7 @@ CVPR-skills/
 └── tests/
 ```
 
-`skills/conference-cvpr/` 是会议级 workflow 核心；`skills/cvpr-paper-reader/` 是论文级精读 workflow。`data/`、`outputs/` 和 `logs/` 是运行产物，不提交仓库。
+`skills/conference-cvpr/` 是会议级 workflow 核心；`skills/cvpr-paper-reader/` 是论文级精读 workflow；`skills/cvpr-idea-miner/` 是多篇论文/阅读笔记的 idea mining workflow。`data/`、`outputs/` 和 `logs/` 是运行产物，不提交仓库。
 
 ## Install
 
@@ -152,6 +163,37 @@ outputs/computer_vision/cvpr/reader/{paper_id}/
 
 推荐输出文件包括 `summary.md`、`method.md`、`experiments.md`、`limitations_and_ideas.md` 和 `reading_note.md`。
 
+触发 `cvpr-idea-miner` skill 的例子：
+
+- 从这些 CVPR 论文找研究灵感
+- 帮我分析 CVPR 研究空白
+- 根据这些阅读笔记生成 idea
+- 帮我做 CVPR topic map
+- 从 CVPR 2026 中找可做的研究方向
+- 根据这些论文总结未来工作
+- CVPR idea miner
+- research idea from CVPR papers
+
+它面向多篇论文或阅读笔记，默认完整流程是：
+
+```text
+topic-map -> gap-analysis -> method-recombination -> idea-cards -> experiment-plan
+```
+
+可先索引 `cvpr-paper-reader` 的本地输出：
+
+```bash
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
+```
+
+idea mining 推荐输出路径：
+
+```text
+outputs/computer_vision/cvpr/ideas/{year}/
+```
+
+推荐输出文件包括 `topic_map.md`、`gap_analysis.md`、`method_recombination.md`、`idea_cards.md` 和 `experiment_plan.md`。
+
 ## Fast Collection And Enrichment
 
 默认采集是快速模式，主要读取 CVF 列表页可直接获得的字段：标题、作者、论文页、PDF 链接和 supplementary 链接。CVF 列表页通常不稳定提供摘要，因此 `abstract` 默认可能大量缺失。
@@ -183,6 +225,14 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 - `fulltext`：可以做完整阅读笔记、方法提取、实验表、局限性和研究灵感。
 - `user_provided_notes`：可以结合用户笔记分析，但要区分原文证据和用户推断。
 
+`cvpr-idea-miner` 使用多篇论文/阅读笔记级证据等级：
+
+- `title_only`：只能做标题级粗粒度方向扫描。
+- `title_abstract`：可以做初步主题归类和 preliminary idea。
+- `reader_notes`：可以基于阅读笔记做 gap analysis 和 idea cards。
+- `fulltext_notes`：可以做较完整的方法组合和实验计划。
+- `user_hypothesis`：可以结合用户想法，但必须区分论文事实和用户设想。
+
 ## Evals
 
 `evals/` 提供轻量路由样例：
@@ -194,6 +244,9 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 - `read_single_cvpr_paper`
 - `method_extraction`
 - `abstract_only_warning`
+- `idea_from_reader_notes`
+- `title_only_idea_warning`
+- `method_recombination`
 
 这些样例用于人工或自动检查 Agent 是否选择正确 workflow，并遵守 v1 只支持 CVPR main conference papers 的范围。
 
@@ -201,6 +254,7 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 
 ```bash
 python -m unittest discover -s tests
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
 python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
 python skills/conference-cvpr/scripts/run_pipeline.py --help
 python skills/conference-cvpr/scripts/collect_cvpr.py --help

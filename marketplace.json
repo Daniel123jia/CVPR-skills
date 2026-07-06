@@ -1,12 +1,18 @@
 {
   "title": "CVPR-skills",
-  "summary": "Agent skills for CVPR main conference paper metadata collection, export, completeness checking, preliminary analysis, and paper reading.",
+  "summary": "Agent skills for CVPR main conference paper metadata collection, export, completeness checking, preliminary analysis, paper reading, and research idea mining.",
   "skill_path": "skills/conference-cvpr",
+  "skill_paths": [
+    "skills/conference-cvpr",
+    "skills/cvpr-paper-reader",
+    "skills/cvpr-idea-miner"
+  ],
   "tags": [
     "cvpr",
     "computer-vision",
     "papers",
     "paper-reading",
+    "research-ideas",
     "metadata",
     "codex",
     "claude-code"

@@ -1,0 +1,14 @@
+用户请求：
+根据这些 CVPR 阅读笔记，把不同论文的方法模块组合一下，提出 3 个可能的新方法。
+
+可用证据：
+- 多篇 CVPR 论文的 method.md
+- 多篇 CVPR 论文的 limitations_and_ideas.md
+- 用户希望把检测、分割、生成式先验、轻量化模块做组合
+
+期望行为：
+- 触发 `cvpr-idea-miner`
+- 使用 `method-recombination`
+- 每个组合必须标记 evidence source
+- 必须说明组合想法是 agent proposal 或 user hypothesis，不是已有论文结论
+

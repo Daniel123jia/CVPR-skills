@@ -1,0 +1,13 @@
+用户请求：
+根据这些 `cvpr-paper-reader` 输出的 reading_note.md、method.md、experiments.md 和 limitations_and_ideas.md，生成 CVPR research idea cards。
+
+可用证据：
+- 多篇 CVPR 论文的 reader notes
+- 每篇 note 都包含 paper_id、方法摘要、实验摘要和局限性
+
+期望行为：
+- 触发 `cvpr-idea-miner`
+- 使用 `idea-cards`，必要时先做 `gap-analysis`
+- 标记 evidence level 为 `reader_notes`
+- 输出 `outputs/computer_vision/cvpr/ideas/{year}/idea_cards.md`
+

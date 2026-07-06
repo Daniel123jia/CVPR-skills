@@ -1,0 +1,82 @@
+name: cvpr-idea-miner
+version: 0.1.0
+description: >
+  Declarative manifest for the CVPR idea miner router. SKILL.md uses this file
+  to load stable evidence and output rules, then select workflow fragments for
+  multi-paper CVPR topic mapping, gap analysis, method recombination, idea
+  cards, and experiment planning.
+
+always_load:
+  - static/core/principles.md
+  - static/core/evidence-policy.md
+  - static/core/workflow.md
+  - static/core/output-contract.md
+
+axes:
+  workflow:
+    detect: |
+      Map the user's multi-paper CVPR idea-mining request to one or more workflow values.
+      Multiple workflows may apply for combined requests.
+        topic-map              — generate a topic map from multiple CVPR titles, abstracts, or notes
+        gap-analysis           — identify research gaps, limitations, and improvement opportunities
+        method-recombination   — combine method modules across papers into possible new methods
+        idea-cards             — produce structured CVPR research idea cards
+        experiment-plan        — turn selected ideas into runnable experiment plans
+    values:
+      topic-map: references/workflows/wf1-topic-map.md
+      gap-analysis: references/workflows/wf2-gap-analysis.md
+      method-recombination: references/workflows/wf3-method-recombination.md
+      idea-cards: references/workflows/wf4-idea-cards.md
+      experiment-plan: references/workflows/wf5-experiment-plan.md
+    multi: true
+
+default_full_pipeline:
+  - topic-map
+  - gap-analysis
+  - method-recombination
+  - idea-cards
+  - experiment-plan
+
+inputs:
+  preferred:
+    - cvpr-paper-reader reading_note.md
+    - cvpr-paper-reader method.md
+    - cvpr-paper-reader experiments.md
+    - cvpr-paper-reader limitations_and_ideas.md
+  accepted_from_conference_cvpr:
+    - normalized JSON
+    - conference report
+    - paper list
+  accepted_user_material:
+    - titles
+    - abstracts
+    - reading notes
+    - fulltext-derived notes
+    - user hypotheses clearly labeled as hypotheses
+
+outputs:
+  root: outputs/computer_vision/cvpr/ideas/{year}/
+  files:
+    topic_map: topic_map.md
+    gap_analysis: gap_analysis.md
+    method_recombination: method_recombination.md
+    idea_cards: idea_cards.md
+    experiment_plan: experiment_plan.md
+
+scope:
+  includes:
+    - CVPR main conference paper metadata
+    - CVPR reading notes
+    - multi-paper idea mining
+    - grounded future-work and experiment planning
+  excludes:
+    - whole-year CVPR collection
+    - single-paper PDF parsing
+    - other conferences
+    - external enrichment APIs
+    - batch PDF downloads
+    - OCR
+
+scripts:
+  collect_reader_notes: scripts/collect_reader_notes.py
+
