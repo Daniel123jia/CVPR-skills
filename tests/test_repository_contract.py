@@ -7,12 +7,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class RepositoryContractTest(unittest.TestCase):
-    def test_root_readme_names_cvpr_skills_and_single_skill_scope(self):
+    def test_root_readme_names_cvpr_skills_and_cvpr_only_scope(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
         self.assertTrue(readme.startswith("# CVPR-skills\n"))
         self.assertIn("一个面向 CVPR main conference papers 的 Codex / Claude Code Agent Skill", readme)
-        self.assertIn("当前仓库只包含一个 skill：`conference-cvpr`", readme)
+        self.assertIn("当前仓库只做 CVPR-skills", readme)
+        self.assertIn("`conference-cvpr`", readme)
+        self.assertIn("`cvpr-paper-reader`", readme)
         self.assertNotIn("# ai-conference-skills", readme)
         self.assertNotIn("后续计划扩展 ICCV", readme)
 
@@ -22,13 +24,15 @@ class RepositoryContractTest(unittest.TestCase):
         for pattern in [".venv/", "__pycache__/", "*.pyc", ".DS_Store", "data/", "outputs/", "logs/", "*.sqlite", "*.db", "*.xlsx"]:
             self.assertIn(pattern, gitignore)
 
-    def test_plugin_and_marketplace_metadata_describe_single_cvpr_skill(self):
+    def test_plugin_and_marketplace_metadata_describe_cvpr_skills(self):
         plugin = json.loads((PROJECT_ROOT / "plugin.json").read_text(encoding="utf-8"))
         marketplace = json.loads((PROJECT_ROOT / "marketplace.json").read_text(encoding="utf-8"))
 
         self.assertEqual(plugin["name"], "CVPR-skills")
         self.assertIn("conference-cvpr", plugin["skills"])
+        self.assertIn("cvpr-paper-reader", plugin["skills"])
         self.assertEqual(marketplace["skill_path"], "skills/conference-cvpr")
+        self.assertIn("paper reading", marketplace["summary"])
         for tag in ["cvpr", "computer-vision", "papers", "metadata", "codex", "claude-code"]:
             self.assertIn(tag, marketplace["tags"])
 
@@ -39,6 +43,9 @@ class RepositoryContractTest(unittest.TestCase):
             "export_cvpr_excel",
             "analyze_low_abstract_coverage",
             "reject_non_cvpr",
+            "read_single_cvpr_paper",
+            "method_extraction",
+            "abstract_only_warning",
         ]
         for case in cases:
             self.assertTrue((evals / "prompts" / f"{case}.txt").is_file(), case)

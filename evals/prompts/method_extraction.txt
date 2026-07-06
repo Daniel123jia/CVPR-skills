@@ -1,0 +1,10 @@
+请提取这篇 CVPR 论文的方法和实验细节。
+
+输入只有标题：
+
+Title: Example Title About Vision Foundation Models
+
+要求：
+- 判断证据等级。
+- 如果证据不足，输出 Markdown 文件而不是编造内容。
+- 不要生成方法、网络结构、实验设置或结果数字。

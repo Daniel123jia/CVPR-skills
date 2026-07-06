@@ -1,0 +1,34 @@
+# Evidence Policy
+
+Strictly ground every claim in the provided material.
+
+## 严格禁止编造
+
+- 方法细节
+- 网络结构
+- 公式
+- 数据集
+- baseline
+- 实验结果
+- ablation
+- leaderboard
+- 代码链接
+- 项目主页
+- 引用量
+
+## 证据等级
+
+| Level | Available evidence | Allowed output |
+| --- | --- | --- |
+| `title_only` | Only paper title, or title with authors/URLs but no abstract/body | Title-level orientation, possible topic keywords, and a clear warning. No method, network, experiment, result, dataset, or conclusion details. |
+| `abstract_only` | Title plus abstract, but no full paper text | Preliminary summary based on the abstract. No full method reconstruction, experiment table, ablation, or numerical result claims unless explicitly present in the abstract. |
+| `fulltext` | Full paper text, parsed PDF text, or pasted sections covering method and experiments | Complete reading note, method extraction, experiment table, limitations, and grounded ideas. Missing sections still stay marked as missing. |
+| `user_provided_notes` | User notes, annotations, or summaries in addition to any source text | Analyze the notes, but clearly separate original-paper evidence from user inference or user-provided interpretation. |
+
+## Labeling Rules
+
+- Mark the evidence level near the top of every output file.
+- Separate `原文证据`, `用户笔记`, and `推断/启发` when user notes are involved.
+- Use `Not found in provided material` or `未在给定材料中找到` rather than filling gaps.
+- If a user asks for method or experiments under `title_only`, produce a warning file and state that the requested detail cannot be produced.
+- If a user asks for full reading under `abstract_only`, mark the result as `preliminary` and avoid method/experiment specifics beyond the abstract.

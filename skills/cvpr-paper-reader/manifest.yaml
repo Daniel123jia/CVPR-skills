@@ -1,0 +1,79 @@
+name: cvpr-paper-reader
+version: 0.1.0
+description: >
+  Declarative manifest for the CVPR paper reader router. SKILL.md uses this file
+  to load stable reading rules and then select paper-level workflow fragments.
+
+always_load:
+  - static/core/principles.md
+  - static/core/evidence-policy.md
+  - static/core/workflow.md
+  - static/core/output-contract.md
+
+axes:
+  workflow:
+    detect: |
+      Map the user's paper-level reading request to one or more workflow values.
+      Multiple workflows may apply for combined requests.
+        paper-summary          — summarize one CVPR paper at title, abstract, or fulltext level
+        method-extraction      — extract method framework, modules, process, and formulas
+        experiment-table       — organize datasets, metrics, baselines, results, and ablations
+        limitations-and-ideas  — identify limitations and generate grounded research ideas
+        reading-note           — create a complete Chinese Markdown reading note
+    values:
+      paper-summary: references/workflows/wf1-paper-summary.md
+      method-extraction: references/workflows/wf2-method-extraction.md
+      experiment-table: references/workflows/wf3-experiment-table.md
+      limitations-and-ideas: references/workflows/wf4-limitations-and-ideas.md
+      reading-note: references/workflows/wf5-reading-note.md
+    multi: true
+
+default_full_pipeline:
+  - paper-summary
+  - method-extraction
+  - experiment-table
+  - limitations-and-ideas
+  - reading-note
+
+inputs:
+  preferred:
+    - user-provided full paper text
+    - local PDF parsed by scripts/extract_pdf_text.py
+    - pasted paper sections
+    - CVF paper page content
+  accepted_entry_metadata:
+    - title
+    - authors
+    - abstract
+    - pdf_url
+    - paper_page_url
+  from_conference_cvpr:
+    - title
+    - authors
+    - abstract
+    - pdf_url
+    - paper_page_url
+
+outputs:
+  root: outputs/computer_vision/cvpr/reader/{paper_id}/
+  files:
+    summary: summary.md
+    method: method.md
+    experiments: experiments.md
+    limitations_and_ideas: limitations_and_ideas.md
+    reading_note: reading_note.md
+
+scope:
+  includes:
+    - single CVPR paper reading
+    - small-batch CVPR paper reading
+    - Chinese structured Markdown reading artifacts
+  excludes:
+    - whole-year CVPR collection
+    - other conferences
+    - external enrichment APIs
+    - batch PDF downloads
+    - OCR
+
+scripts:
+  extract_pdf_text: scripts/extract_pdf_text.py

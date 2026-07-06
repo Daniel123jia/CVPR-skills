@@ -1,0 +1,10 @@
+请总结这篇 CVPR 论文，并生成阅读笔记。
+
+输入只有 title + abstract，没有全文：
+
+Title: Example CVPR Paper
+Abstract: We propose a vision model for robust recognition under distribution shift. The abstract describes the motivation, high-level approach, and claims improved robustness, but does not provide detailed architecture, datasets, ablations, or numerical results.
+
+要求：
+- 只能基于摘要做 preliminary summary。
+- 不要输出方法细节、实验表或结果数字。

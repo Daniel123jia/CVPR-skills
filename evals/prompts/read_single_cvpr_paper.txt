@@ -1,0 +1,8 @@
+请使用 cvpr-paper-reader 精读这篇 CVPR 论文，并生成完整中文阅读笔记。
+
+输入包含 title、abstract、method、experiments、limitations 等全文片段。请输出 summary.md、method.md、experiments.md、limitations_and_ideas.md 和 reading_note.md。
+
+要求：
+- 标记 evidence level 为 fulltext。
+- 方法和实验必须来自给定全文片段。
+- 不要联网补充代码链接、引用量或项目主页。

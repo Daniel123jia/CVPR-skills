@@ -1,7 +1,8 @@
 {
   "name": "CVPR-skills",
-  "description": "Agent skill for CVPR paper metadata collection, export, completeness checking, and preliminary analysis.",
+  "description": "Agent skills for CVPR paper metadata collection, export, completeness checking, preliminary analysis, and single-paper reading.",
   "skills": [
-    "conference-cvpr"
+    "conference-cvpr",
+    "cvpr-paper-reader"
   ]
 }
