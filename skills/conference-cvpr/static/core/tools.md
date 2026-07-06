@@ -13,6 +13,17 @@ Run scripts from the repository root or from the working directory where runtime
 | export-artifacts | `scripts/export_cvpr.py` | Export normalized JSON to SQLite, Excel, Markdown, and JSON |
 | completeness-check | `scripts/check_completeness.py` | Generate completeness report and failed item list |
 
+## Tool Selection
+
+| User need | Workflow / script |
+| --- | --- |
+| 采集 CVPR 论文 | `collect-cvf` / `collect_cvpr.py` |
+| 补充摘要 | `collect_cvpr.py --enrich-pages` |
+| 清洗字段 | `normalize-metadata` / `normalize_cvpr.py` |
+| 导出 Excel/SQLite/Markdown/JSON | `export-artifacts` / `export_cvpr.py` |
+| 检查缺失字段和重复论文 | `completeness-check` / `check_completeness.py` |
+| 研究方向分析 | `research-analysis`; default does not call external APIs |
+
 ## Command Pattern
 
 ```bash
@@ -32,6 +43,8 @@ Per-paper enrichment options:
 - `--limit`: limits records written and per-paper enrichment attempts; useful for samples and staged enrichment.
 - `--sleep`: waits between individual paper-page enrichment requests.
 - `--resume`: reuses an existing raw JSON output when present, then optionally enriches and writes it again with backup.
+
+Current `--limit` semantics: it limits both output record count and per-paper enrichment attempts. A future version may split this into `--limit-records` and `--enrich-limit`, but keep the current flag unchanged in v1 to avoid breaking the verified workflow.
 
 For abstract-level analysis, prefer a staged command such as:
 

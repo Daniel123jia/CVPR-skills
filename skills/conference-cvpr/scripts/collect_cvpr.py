@@ -19,7 +19,7 @@ from _cvpr_common import configure_logging, default_raw_path, load_json_records,
 
 
 BASE_URL = "https://openaccess.thecvf.com"
-USER_AGENT = "ai-conference-skills/0.1 (+https://openaccess.thecvf.com)"
+USER_AGENT = "CVPR-skills/1.0 (+https://openaccess.thecvf.com)"
 TITLE_RE = re.compile(
     r"<dt[^>]*class=[\"'][^\"']*\bptitle\b[^\"']*[\"'][^>]*>.*?"
     r"<a\s+[^>]*href=[\"'](?P<href>[^\"']+)[\"'][^>]*>(?P<title>.*?)</a>.*?</dt>",

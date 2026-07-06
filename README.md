@@ -1,39 +1,43 @@
-# ai-conference-skills
+# CVPR-skills
 
-面向人工智能顶会论文采集、清洗、导出、阅读、分析和研究灵感生成的 Codex / Claude Code Agent Skill 库。
+一个面向 CVPR main conference papers 的 Codex / Claude Code Agent Skill，用于从 CVF Open Access 采集、清洗、导出、完整性检查和初步研究分析。
 
-这个项目模仿 `nature-skills` 的组织思想：`skills/` 下每个顶层目录都是一个可安装 skill，复杂规则拆到 `manifest.yaml`、`static/`、`references/`、`scripts/`，共享规则统一放在 `skills/_shared/`。`scripts/` 是 skill 的工具，不是项目主体；`data/` 和 `outputs/` 是运行产物，不纳入源码结构。
+当前仓库只包含一个 skill：`conference-cvpr`。v1 专注 CVPR main conference papers，不新增其他会议 skill，不采集 workshops，不调用外部 enrichment API，不批量下载 PDF。
 
-第一版只实现 `conference-cvpr`。后续计划扩展 ICCV、ECCV、NeurIPS、ICML、ACL、AAAI、IJCAI。
-
-## 结构
+## Repository Layout
 
 ```text
-ai-conference-skills/
+CVPR-skills/
 ├── README.md
 ├── LICENSE
 ├── requirements.txt
+├── plugin.json
+├── marketplace.json
+├── evals/
+│   ├── prompts/
+│   └── expected/
 ├── scripts/
 │   └── update-codex-skills.sh
-└── skills/
-    ├── _shared/
-    │   ├── core/
-    │   └── templates/
-    └── conference-cvpr/
-        ├── README.md
-        ├── SKILL.md
-        ├── manifest.yaml
-        ├── static/
-        │   ├── core/
-        ├── references/
-        │   └── workflows/
-        └── scripts/
+├── skills/
+│   ├── _shared/
+│   │   ├── core/
+│   │   └── templates/
+│   └── conference-cvpr/
+│       ├── README.md
+│       ├── SKILL.md
+│       ├── manifest.yaml
+│       ├── static/core/
+│       ├── references/workflows/
+│       └── scripts/
+└── tests/
 ```
 
-## 安装
+`skills/conference-cvpr/` 是仓库核心。`data/`、`outputs/` 和 `logs/` 是运行产物，默认不作为源码提交。
+
+## Install
 
 ```bash
-cd ai-conference-skills
+cd CVPR-skills
 python3.10 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -42,7 +46,7 @@ bash scripts/update-codex-skills.sh
 
 安装脚本会同步 `skills/` 下的顶层目录到 `${CODEX_HOME:-$HOME/.codex}/skills`。如果目标目录已有同名 skill，会先备份，再合并覆盖同名文件，不删除目标目录里的额外文件。
 
-## 使用
+## Use
 
 在 Codex / Claude Code 中触发 `conference-cvpr` skill，例如：
 
@@ -52,7 +56,7 @@ bash scripts/update-codex-skills.sh
 - 导出 CVPR 论文 Excel
 - 分析 CVPR 研究方向
 
-完整默认流程：
+默认完整流程：
 
 ```bash
 python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026
@@ -61,45 +65,55 @@ python skills/conference-cvpr/scripts/export_cvpr.py --year 2026
 python skills/conference-cvpr/scripts/check_completeness.py --year 2026
 ```
 
-第一版范围：
+输出路径：
 
-- 只采集 CVPR main conference papers
-- 主数据源只用 CVF Open Access
-- 不采集 workshops
-- 不接 OpenAlex、DBLP、Semantic Scholar
-- 不批量下载 PDF，只保存 `pdf_url`
-- 输出 SQLite、Excel、Markdown、JSON 作为运行产物
+```text
+data/raw/computer_vision/cvpr/{year}/cvpr_{year}_raw.json
+data/normalized/computer_vision/cvpr/{year}/cvpr_{year}_normalized.json
+outputs/computer_vision/cvpr/{year}/
+```
 
-默认采集是快速模式，主要读取 CVF 列表页可直接获得的字段。CVF 列表页通常不稳定提供摘要，因此 `abstract` 默认可能大量缺失；如果需要摘要级分析，请显式运行：
+导出格式包括 SQLite、Excel、Markdown 和 JSON；SQLite 表名为 `papers`。
+
+## Fast Collection And Enrichment
+
+默认采集是快速模式，主要读取 CVF 列表页可直接获得的字段：标题、作者、论文页、PDF 链接和 supplementary 链接。CVF 列表页通常不稳定提供摘要，因此 `abstract` 默认可能大量缺失。
+
+如果需要摘要级分析，请显式运行分批 enrichment：
 
 ```bash
 python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages --limit 100 --sleep 0.5 --resume
 ```
 
-`--enrich-pages` 会逐篇访问 `paper_page_url` 补摘要，建议配合 `--limit`、`--sleep`、`--resume` 分批进行，避免一次性请求整届会议的所有论文页。`research-analysis` 在摘要缺失严重时只做 title-based preliminary scan，不会输出细粒度技术结论。
+`--enrich-pages` 会逐篇访问 `paper_page_url` 补摘要。建议配合 `--limit`、`--sleep`、`--resume` 分批进行，避免一次性请求整届会议的所有论文页。
 
-## 共享设计
+## Analysis Guardrails
 
-`conference-cvpr` 模仿 `nature-academic-search` 的 router 形态：`SKILL.md` 只负责加载 `manifest.yaml`、读取 `always_load` 核心文件、识别 `axes.workflow`，然后加载 `references/workflows/` 中对应片段。
+`research-analysis` 必须先读取 normalized JSON 或 SQLite 并计算 `abstract_coverage`：
 
-`skills/_shared/core/` 定义跨会议共用规则：
+- `abstract_coverage < 5%`：只能做 `title_only` 粗粒度 preliminary scan，并写明“当前几乎没有摘要，分析仅基于标题，不适合做细粒度技术结论”。
+- `abstract_coverage >= 50%`：可以做 `title_abstract` 初步主题归类和趋势总结，但不能声称读过全文。
+- 只有用户提供全文文本、PDF 解析文本或明确论文内容时，才进入 `fulltext_assisted`，讨论方法细节、实验设置、数据集、ablation 和结果。
 
-- `metadata-schema.md`
-- `dedup-rules.md`
-- `output-contract.md`
-- `database-schema.md`
-- `research-taxonomy.md`
+无论哪种模式，都不能编造代码链接、引用量、实验结果、数据集、ablation、leaderboard、项目主页或 GitHub 地址。
 
-`skills/_shared/templates/` 定义阅读、分析和灵感生成模板：
+## Evals
 
-- `paper-note.md`
-- `conference-report.md`
-- `idea-card.md`
+`evals/` 提供轻量路由样例：
 
-## 测试
+- `collect_cvpr_2026`
+- `export_cvpr_excel`
+- `analyze_low_abstract_coverage`
+- `reject_non_cvpr`
+
+这些样例用于人工或自动检查 Agent 是否选择正确 workflow，并遵守 v1 只支持 CVPR main conference papers 的范围。
+
+## Test
 
 ```bash
-python3.11 -m unittest discover -s tests
+python -m unittest discover -s tests
+python skills/conference-cvpr/scripts/collect_cvpr.py --help
+python skills/conference-cvpr/scripts/normalize_cvpr.py --help
+python skills/conference-cvpr/scripts/export_cvpr.py --help
+python skills/conference-cvpr/scripts/check_completeness.py --help
 ```
-
-测试覆盖 CVF HTML 解析、字段归一化、SQLite/Excel/Markdown/JSON 导出和 completeness error/warning 分层。

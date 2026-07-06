@@ -183,8 +183,9 @@ class CvprPipelineTest(unittest.TestCase):
 
         self.assertEqual(len(papers), 1)
         enrich.assert_called_once()
-        self.assertEqual(enrich.call_args.args[4], 1)
-        self.assertEqual(enrich.call_args.args[5], 0.5)
+        call_args, _ = enrich.call_args
+        self.assertEqual(call_args[4], 1)
+        self.assertEqual(call_args[5], 0.5)
 
     def test_export_writes_sqlite_excel_markdown_and_json(self):
         with self.subTest("export files"):

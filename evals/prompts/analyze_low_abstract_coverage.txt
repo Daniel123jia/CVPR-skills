@@ -1,0 +1,1 @@
+分析 CVPR 2026 的研究方向。当前 completeness_report 显示 abstract_coverage 低于 5%。

@@ -1,0 +1,13 @@
+{
+  "title": "CVPR-skills",
+  "summary": "Agent skill for CVPR main conference paper metadata collection, export, completeness checking, and preliminary analysis.",
+  "skill_path": "skills/conference-cvpr",
+  "tags": [
+    "cvpr",
+    "computer-vision",
+    "papers",
+    "metadata",
+    "codex",
+    "claude-code"
+  ]
+}
