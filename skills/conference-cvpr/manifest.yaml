@@ -1,0 +1,77 @@
+name: conference-cvpr
+version: 0.2.0
+description: >
+  Declarative manifest for the CVPR Agent Skill router. SKILL.md uses this file
+  to load the minimal core layer and then select workflow fragments for CVPR
+  paper collection, normalization, export, completeness checking, and research
+  analysis.
+
+always_load:
+  - static/core/tools.md
+  - static/core/routing-and-ops.md
+
+axes:
+  workflow:
+    detect: |
+      Map the user's need to one or more workflow values. Multiple workflows
+      may apply for combined requests, such as "获取 CVPR 2026 论文并导出 Excel".
+        collect-cvf          — collect CVPR main-conference papers from CVF Open Access
+        normalize-metadata   — clean raw CVF records and write normalized metadata
+        export-artifacts     — export normalized data to SQLite, Excel, Markdown, JSON
+        completeness-check   — audit missing fields and duplicate titles
+        research-analysis    — create paper notes, conference reports, and idea cards
+    values:
+      collect-cvf: references/workflows/wf1-collect-cvf.md
+      normalize-metadata: references/workflows/wf2-normalize-metadata.md
+      export-artifacts: references/workflows/wf3-export-artifacts.md
+      completeness-check: references/workflows/wf4-completeness-check.md
+      research-analysis: references/workflows/wf5-research-analysis.md
+    multi: true
+
+default_full_pipeline:
+  - collect-cvf
+  - normalize-metadata
+  - export-artifacts
+  - completeness-check
+
+references:
+  on_demand:
+    - condition: normalized paper metadata schema and reserved enrichment fields
+      path: ../_shared/core/metadata-schema.md
+    - condition: deduplication during CVF day fallback or imported normalized data audit
+      path: ../_shared/core/dedup-rules.md
+    - condition: exact data, output, and analysis artifact paths
+      path: ../_shared/core/output-contract.md
+    - condition: SQLite table and export column contract
+      path: ../_shared/core/database-schema.md
+    - condition: research direction taxonomy for CVPR analysis and idea generation
+      path: ../_shared/core/research-taxonomy.md
+    - condition: individual paper note output
+      path: ../_shared/templates/paper-note.md
+    - condition: conference-level report output
+      path: ../_shared/templates/conference-report.md
+    - condition: research idea card output
+      path: ../_shared/templates/idea-card.md
+    - condition: CVF Open Access HTML parsing details
+      path: references/cvf-openaccess.md
+    - condition: CVPR year URL and day-link patterns
+      path: references/cvpr-year-patterns.md
+    - condition: future OpenAlex enrichment planning only
+      path: references/future-openalex-enrichment.md
+    - condition: future code and project URL enrichment planning only
+      path: references/future-code-link-enrichment.md
+
+scope:
+  includes:
+    - CVPR main conference papers
+    - file-based reading and analysis outputs
+  excludes:
+    - CVPR workshops
+    - PDF downloading
+    - external enrichment APIs in v1
+
+scripts:
+  collect: scripts/collect_cvpr.py
+  normalize: scripts/normalize_cvpr.py
+  export: scripts/export_cvpr.py
+  check: scripts/check_completeness.py
