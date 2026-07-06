@@ -11,7 +11,7 @@ conference-cvpr       ->  cvpr-paper-reader       ->  cvpr-idea-miner
 采集 / 清洗 / 导出 / 检查   单篇阅读笔记与证据分级      topic map / gap / idea cards
 ```
 
-**v1.3 状态**
+**v1.4 准备状态**
 
 | 能力 | 状态 |
 | --- | --- |
@@ -70,10 +70,47 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir output
 
 Runtime outputs go under `data/`, `outputs/`, and `logs/`; they are intentionally ignored by git.
 
+## Clean clone validation
+
+After a fresh clone, install dependencies and run only local checks:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m unittest discover -s tests
+python skills/conference-cvpr/scripts/run_pipeline.py --help
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
+```
+
+This validation does not run real CVF collection, does not call external enrichment APIs, and does not download PDFs.
+
+## Fulltext local validation
+
+Fulltext validation is intentionally local-only. Prepare a CVPR PDF that already exists on disk, keep it out of git, then follow:
+
+```text
+examples/end_to_end_demo/fulltext_case_guide.md
+```
+
+The guide covers `paper_text.md` extraction, fulltext reader notes, idea-card generation, and manual checks for evidence level, evidence source, risk, first runnable experiment, and anti-hallucination rules.
+
+## CI status / testing
+
+GitHub Actions runs the local validation suite on `push` and `pull_request` using Python 3.11:
+
+```text
+.github/workflows/test.yml
+```
+
+The CI job installs `requirements.txt`, runs `python -m unittest discover -s tests`, and checks the three helper CLIs with `--help`. It avoids real network collection, PDF handling, and external enrichment calls.
+
 ## Repository Layout
 
 ```text
 CVPR-skills/
+├── .github/workflows/test.yml
 ├── README.md
 ├── LICENSE
 ├── requirements.txt
@@ -316,7 +353,7 @@ python skills/conference-cvpr/scripts/check_completeness.py --help
 
 当前发布前验证：
 
-- `44 tests OK`
+- `48 tests OK`
 - `run_pipeline.py --help` passed
 - `extract_pdf_text.py --help` passed
 - `collect_reader_notes.py --help` passed

@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Python 3.11 local validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run local tests
+        run: python -m unittest discover -s tests
+
+      - name: Check helper CLIs
+        run: |
+          python skills/conference-cvpr/scripts/run_pipeline.py --help
+          python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
+          python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help

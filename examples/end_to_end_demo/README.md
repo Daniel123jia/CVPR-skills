@@ -49,6 +49,8 @@ Current local acceptance status:
 - `abstract_only` and `fulltext` are covered by local fixtures under `tests/fixtures/reader_notes/`.
 - If real local PDFs become available later, rerun `extract_pdf_text.py` on those local files and do a separate fulltext acceptance pass.
 
+For the real local-PDF path, use [`fulltext_case_guide.md`](fulltext_case_guide.md). It describes how to prepare a local CVPR PDF, extract `paper_text.md`, generate reader notes, collect notes for `cvpr-idea-miner`, and manually inspect evidence boundaries without committing runtime artifacts.
+
 ## Step 3: Generate Ideas With cvpr-idea-miner
 
 Use `cvpr-idea-miner` after one or more `cvpr-paper-reader` notes exist. First collect reader notes into a local index:
