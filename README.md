@@ -4,6 +4,23 @@
 
 当前仓库只做 CVPR-skills，不扩展其他会议。当前包含三个 skill：`conference-cvpr`、`cvpr-paper-reader` 和 `cvpr-idea-miner`。v1 专注 CVPR main conference papers，不新增其他会议 skill，不采集 workshops，不调用外部 enrichment API，不批量下载 PDF。
 
+## At A Glance
+
+```text
+conference-cvpr       ->  cvpr-paper-reader       ->  cvpr-idea-miner
+采集 / 清洗 / 导出 / 检查   单篇阅读笔记与证据分级      topic map / gap / idea cards
+```
+
+**v1.3 状态**
+
+| 能力 | 状态 |
+| --- | --- |
+| CVPR 2026 小样本采集 | 已通过本地真实样本验收 |
+| `title_only` reader / idea mining | 已通过本地真实样本验收 |
+| `abstract_only` reader note | 已通过 CVF 真实摘要验收 |
+| `fulltext` reader / idea mining | 已通过本地 fixture 验收；真实 PDF 验收需用户本地已有 PDF |
+| 安全边界 | 不新增其他会议、不接外部 enrichment API、不下载 PDF、不做 OCR |
+
 ## Skill Navigator
 
 `skills/conference-cvpr/`、`skills/cvpr-paper-reader/` 和 `skills/cvpr-idea-miner/` 是当前可触发 skill；`skills/_shared/` 只存放共享 schema、规则和模板，不作为独立 skill 使用。
@@ -31,6 +48,28 @@
 
 **边界很重要：** 只支持 CVPR main conference papers；不采集 workshops，不新增其他会议，不调用外部 enrichment API，不下载 PDF。`conference-cvpr` 不负责单篇精读，`cvpr-paper-reader` 不负责整届会议采集，`cvpr-idea-miner` 不负责整届论文采集或单篇 PDF 解析。
 
+## Quick Start
+
+```bash
+python3.10 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Run a small CVPR collection sample:
+
+```bash
+python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --limit 5
+```
+
+Index local paper-reader notes before idea mining:
+
+```bash
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
+```
+
+Runtime outputs go under `data/`, `outputs/`, and `logs/`; they are intentionally ignored by git.
+
 ## Repository Layout
 
 ```text
@@ -44,6 +83,7 @@ CVPR-skills/
 │   ├── prompts/
 │   └── expected/
 ├── examples/
+│   ├── end_to_end_demo/
 │   ├── sample_commands.md
 │   └── sample_cvpr_2026_5_papers.md
 ├── scripts/
@@ -74,6 +114,7 @@ CVPR-skills/
 │       ├── references/workflows/
 │       └── scripts/
 └── tests/
+    └── fixtures/
 ```
 
 `skills/conference-cvpr/` 是会议级 workflow 核心；`skills/cvpr-paper-reader/` 是论文级精读 workflow；`skills/cvpr-idea-miner/` 是多篇论文/阅读笔记的 idea mining workflow。`data/`、`outputs/` 和 `logs/` 是运行产物，不提交仓库。
@@ -228,10 +269,20 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 `cvpr-idea-miner` 使用多篇论文/阅读笔记级证据等级：
 
 - `title_only`：只能做标题级粗粒度方向扫描。
+- `abstract_only`：只能做摘要级 preliminary idea，不能补实验细节。
 - `title_abstract`：可以做初步主题归类和 preliminary idea。
-- `reader_notes`：可以基于阅读笔记做 gap analysis 和 idea cards。
+- `reader_notes`：可以基于阅读笔记做 gap analysis 和 idea cards，但必须继承笔记本身的证据边界。
 - `fulltext_notes`：可以做较完整的方法组合和实验计划。
 - `user_hypothesis`：可以结合用户想法，但必须区分论文事实和用户设想。
+
+`collect_reader_notes.py` 会从 `reading_note.md`、`method.md`、`experiments.md` 和 `limitations_and_ideas.md` 建立本地索引，并记录：
+
+- `paper_id`
+- 清洗后的 `title`
+- `evidence_level`
+- 每个本地 note 文件路径
+
+常见阅读笔记标题后缀如 `中文阅读笔记`、`Reading Note`、`Paper Reading Note` 会被清理，不会进入索引标题。
 
 ## Evals
 
@@ -262,3 +313,11 @@ python skills/conference-cvpr/scripts/normalize_cvpr.py --help
 python skills/conference-cvpr/scripts/export_cvpr.py --help
 python skills/conference-cvpr/scripts/check_completeness.py --help
 ```
+
+当前发布前验证：
+
+- `44 tests OK`
+- `run_pipeline.py --help` passed
+- `extract_pdf_text.py --help` passed
+- `collect_reader_notes.py --help` passed
+- `git diff --check` passed
