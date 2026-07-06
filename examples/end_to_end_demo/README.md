@@ -43,6 +43,12 @@ outputs/computer_vision/cvpr/reader/{paper_id}/reading_note.md
 
 The key acceptance file for the next step is `reading_note.md`. It must keep the evidence level visible and must not invent experiment results, datasets, ablation findings, code links, project pages, or citations.
 
+Current local acceptance status:
+
+- `title_only` has passed a real CVPR 2026 small-sample run when the CVF listing sample had no abstracts and no local PDFs.
+- `abstract_only` and `fulltext` are covered by local fixtures under `tests/fixtures/reader_notes/`.
+- If real local PDFs become available later, rerun `extract_pdf_text.py` on those local files and do a separate fulltext acceptance pass.
+
 ## Step 3: Generate Ideas With cvpr-idea-miner
 
 Use `cvpr-idea-miner` after one or more `cvpr-paper-reader` notes exist. First collect reader notes into a local index:
@@ -59,6 +65,8 @@ outputs/computer_vision/cvpr/ideas/2026/idea_cards.md
 
 Each `idea_cards.md` entry should include an evidence source, risk, and first runnable experiment. It must clearly separate paper facts from new idea hypotheses.
 
+`collect_reader_notes.py` writes a `reader_notes_index.json` with cleaned paper titles and `evidence_level`. `cvpr-idea-miner` must read that level before deciding whether an idea can include detailed method or experiment content.
+
 ## Step 4: Manual Anti-Hallucination Check
 
 Before treating the loop as accepted, do an 人工检查 of the reader notes and idea cards, with special attention to 反幻觉 rules:
@@ -68,3 +76,4 @@ Before treating the loop as accepted, do an 人工检查 of the reader notes and
 - Confirm abstract-only inputs are marked preliminary.
 - Confirm `cvpr-idea-miner` labels what comes from paper evidence and what is a proposed new idea.
 - Confirm no generated artifact in this demo is committed; only these Markdown instructions belong in `examples/end_to_end_demo/`.
+- Confirm `abstract_only` and `fulltext` behavior remains covered by committed test fixtures rather than committed runtime outputs.

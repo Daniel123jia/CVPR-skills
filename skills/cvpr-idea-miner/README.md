@@ -12,7 +12,15 @@ Preferred inputs:
 - `conference-cvpr` outputs: normalized JSON, conference reports, paper lists
 - User-provided paper metadata, abstracts, reading notes, or hypotheses
 
-Evidence level controls the allowed depth. Title-only inputs can only support coarse direction scanning.
+Evidence level controls the allowed depth. `cvpr-idea-miner` must read the
+`evidence_level` from indexed reader notes when it is available:
+
+- `title_only`: only coarse direction scanning and direction-level preliminary idea.
+- `abstract_only`: abstract-level preliminary idea only; do not output experiment details.
+- `reader_notes`: use the note's own evidence level to decide whether the idea can go beyond preliminary.
+- `fulltext_notes` / fulltext-derived reader notes: can support more complete gap analysis, idea cards, and experiment plans.
+
+Every idea card must label both `evidence source` and `evidence level`.
 
 ## Workflows
 
@@ -44,3 +52,4 @@ Collect local reading note paths into an index:
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
 ```
 
+The index includes `paper_id`, cleaned `title`, `evidence_level`, note root, and local note file paths. It scans local Markdown only.

@@ -17,15 +17,20 @@ Use this checklist for a local manual验收 of the existing `conference-cvpr`, `
 - [ ] `cvpr-paper-reader` 没有编造实验结果、数据集、ablation findings, baseline comparisons, 代码链接, project URLs, citation counts, or leaderboard claims.
 - [ ] When evidence is `abstract_only`, the note is marked preliminary and does not present full-paper method or experiment conclusions.
 - [ ] In a `title_only` case, the reader has not output detailed conclusions, method details, dataset claims, ablation claims, or numeric results.
+- [ ] Real small-sample `title_only` acceptance has passed when no abstract or local PDF is available.
+- [ ] `abstract_only` behavior is covered by local committed fixtures under `tests/fixtures/reader_notes/`, not by committed runtime outputs.
+- [ ] `fulltext` behavior is covered by local committed fixtures under `tests/fixtures/reader_notes/`, and future real fulltext acceptance should use only local PDFs already present on disk.
 
 ## cvpr-idea-miner
 
 - [ ] `cvpr-idea-miner` 正确读取 reader notes collected from `reading_note.md`, `method.md`, `experiments.md`, and `limitations_and_ideas.md`.
-- [ ] `collect_reader_notes.py` indexes the expected reader notes and reports the expected paper count.
+- [ ] `collect_reader_notes.py` indexes the expected reader notes, cleans note-title suffixes, records `evidence_level`, and reports the expected paper count.
 - [ ] `cvpr-idea-miner` 区分论文事实和新 idea hypotheses.
 - [ ] `idea_cards.md` includes evidence source, risk, and first runnable experiment for each idea card.
+- [ ] `idea_cards.md` includes evidence level for each idea card.
 - [ ] `idea_cards.md` does not turn a speculative idea into a claimed paper result.
 - [ ] In a `title_only` input situation, `cvpr-idea-miner` only performs coarse direction scanning and 没有输出细节结论.
+- [ ] In an `abstract_only` input situation, `cvpr-idea-miner` only produces abstract-level preliminary ideas and no experiment details.
 
 ## Final Manual Gate
 
