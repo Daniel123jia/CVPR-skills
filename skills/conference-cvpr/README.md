@@ -16,6 +16,20 @@ CVPR Agent Skill for Codex / Claude Code.
 
 ## Default Workflow
 
+Recommended:
+
+```bash
+python skills/conference-cvpr/scripts/run_pipeline.py --year 2026
+```
+
+With cautious abstract enrichment:
+
+```bash
+python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --enrich-pages --limit 100 --sleep 0.5 --resume
+```
+
+Advanced per-step use:
+
 ```bash
 python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026
 python skills/conference-cvpr/scripts/normalize_cvpr.py --year 2026

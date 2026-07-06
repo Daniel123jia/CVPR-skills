@@ -71,6 +71,7 @@ scope:
     - external enrichment APIs in v1
 
 scripts:
+  pipeline: scripts/run_pipeline.py
   collect: scripts/collect_cvpr.py
   normalize: scripts/normalize_cvpr.py
   export: scripts/export_cvpr.py

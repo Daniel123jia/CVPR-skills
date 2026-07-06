@@ -1,4 +1,6 @@
 import json
+import importlib
+import subprocess
 import sqlite3
 import sys
 import time
@@ -278,6 +280,75 @@ class CvprPipelineTest(unittest.TestCase):
             self.assertIn("- abstract_coverage: 50.00%", report_text)
             failed_items = json.loads((tmp_path / "failed_items.json").read_text(encoding="utf-8"))
             self.assertEqual({item["severity"] for item in failed_items}, {"error", "warning"})
+
+    def test_run_pipeline_invokes_default_steps_without_network_in_unit_test(self):
+        run_pipeline = importlib.import_module("run_pipeline")
+
+        completed = subprocess.CompletedProcess(args=[], returncode=0)
+        with patch.object(run_pipeline.subprocess, "run", return_value=completed) as run, patch("builtins.print"):
+            exit_code = run_pipeline.run_pipeline(year=2026)
+
+        self.assertEqual(exit_code, 0)
+        command_names = [Path(call_args[0][0][1]).name for call_args in run.call_args_list]
+        self.assertEqual(
+            command_names,
+            ["collect_cvpr.py", "normalize_cvpr.py", "export_cvpr.py", "check_completeness.py"],
+        )
+        for call_args in run.call_args_list:
+            self.assertIn("--year", call_args[0][0])
+            self.assertIn("2026", call_args[0][0])
+
+    def test_run_pipeline_passes_enrichment_options_only_to_collect(self):
+        run_pipeline = importlib.import_module("run_pipeline")
+
+        completed = subprocess.CompletedProcess(args=[], returncode=0)
+        with patch.object(run_pipeline.subprocess, "run", return_value=completed) as run, patch("builtins.print"):
+            exit_code = run_pipeline.run_pipeline(
+                year=2026,
+                enrich_pages=True,
+                limit=100,
+                sleep_seconds=0.5,
+                resume=True,
+            )
+
+        self.assertEqual(exit_code, 0)
+        collect_command = run.call_args_list[0][0][0]
+        self.assertIn("--enrich-pages", collect_command)
+        self.assertIn("--limit", collect_command)
+        self.assertIn("100", collect_command)
+        self.assertIn("--sleep", collect_command)
+        self.assertIn("0.5", collect_command)
+        self.assertIn("--resume", collect_command)
+
+        for call_args in run.call_args_list[1:]:
+            command = call_args[0][0]
+            self.assertNotIn("--enrich-pages", command)
+            self.assertNotIn("--limit", command)
+            self.assertNotIn("--sleep", command)
+            self.assertNotIn("--resume", command)
+
+    def test_run_pipeline_stops_on_failed_step(self):
+        run_pipeline = importlib.import_module("run_pipeline")
+
+        success = subprocess.CompletedProcess(args=[], returncode=0)
+        failure = subprocess.CompletedProcess(args=[], returncode=2)
+        with patch.object(run_pipeline.subprocess, "run", side_effect=[success, failure]) as run, patch("builtins.print"):
+            exit_code = run_pipeline.run_pipeline(year=2026)
+
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(run.call_count, 2)
+
+    def test_run_pipeline_help_works_without_network(self):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / "run_pipeline.py"), "--help"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        )
+
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("--year", result.stdout)
+        self.assertIn("--enrich-pages", result.stdout)
 
 
 if __name__ == "__main__":

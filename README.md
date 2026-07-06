@@ -16,6 +16,9 @@ CVPR-skills/
 ├── evals/
 │   ├── prompts/
 │   └── expected/
+├── examples/
+│   ├── sample_commands.md
+│   └── sample_cvpr_2026_5_papers.md
 ├── scripts/
 │   └── update-codex-skills.sh
 ├── skills/
@@ -32,7 +35,7 @@ CVPR-skills/
 └── tests/
 ```
 
-`skills/conference-cvpr/` 是仓库核心。`data/`、`outputs/` 和 `logs/` 是运行产物，默认不作为源码提交。
+`skills/conference-cvpr/` 是仓库核心。`data/`、`outputs/` 和 `logs/` 是运行产物，不提交仓库。
 
 ## Install
 
@@ -56,7 +59,25 @@ bash scripts/update-codex-skills.sh
 - 导出 CVPR 论文 Excel
 - 分析 CVPR 研究方向
 
-默认完整流程：
+推荐一键运行完整流程：
+
+```bash
+python skills/conference-cvpr/scripts/run_pipeline.py --year 2026
+```
+
+需要分批补摘要时：
+
+```bash
+python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --enrich-pages --limit 100 --sleep 0.5 --resume
+```
+
+默认完整流程等价于：
+
+```text
+collect -> normalize -> export -> check
+```
+
+高级用法：分别运行每一步。
 
 ```bash
 python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026
@@ -87,6 +108,8 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 
 `--enrich-pages` 会逐篇访问 `paper_page_url` 补摘要。建议配合 `--limit`、`--sleep`、`--resume` 分批进行，避免一次性请求整届会议的所有论文页。
 
+常用命令和轻量输出结构示例见 `examples/`。示例文件只展示字段形态，不包含真实完整 CVPR 2026 数据。
+
 ## Analysis Guardrails
 
 `research-analysis` 必须先读取 normalized JSON 或 SQLite 并计算 `abstract_coverage`：
@@ -112,6 +135,7 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 
 ```bash
 python -m unittest discover -s tests
+python skills/conference-cvpr/scripts/run_pipeline.py --help
 python skills/conference-cvpr/scripts/collect_cvpr.py --help
 python skills/conference-cvpr/scripts/normalize_cvpr.py --help
 python skills/conference-cvpr/scripts/export_cvpr.py --help

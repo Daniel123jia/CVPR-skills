@@ -57,6 +57,27 @@ class RepositoryContractTest(unittest.TestCase):
             (evals / "expected" / "reject_non_cvpr.md").read_text(encoding="utf-8"),
         )
 
+    def test_v11_usage_docs_and_examples_include_run_pipeline(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+        tools = (
+            PROJECT_ROOT / "skills" / "conference-cvpr" / "static" / "core" / "tools.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("run_pipeline.py", readme)
+        self.assertIn("高级用法", readme)
+        self.assertIn("run_pipeline.py", tools)
+        self.assertIn("普通用户优先使用", tools)
+
+        sample_commands = PROJECT_ROOT / "examples" / "sample_commands.md"
+        sample_papers = PROJECT_ROOT / "examples" / "sample_cvpr_2026_5_papers.md"
+        self.assertTrue(sample_commands.is_file())
+        self.assertTrue(sample_papers.is_file())
+        self.assertIn("run_pipeline.py --year 2026", sample_commands.read_text(encoding="utf-8"))
+        sample_text = sample_papers.read_text(encoding="utf-8")
+        self.assertIn("paper_id", sample_text)
+        self.assertIn("CVPR2026_000001", sample_text)
+        self.assertNotIn("4068", sample_text)
+
     def test_research_analysis_declares_three_grounding_modes(self):
         workflow = (
             PROJECT_ROOT
