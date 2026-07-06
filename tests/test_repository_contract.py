@@ -78,6 +78,17 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("CVPR2026_000001", sample_text)
         self.assertNotIn("4068", sample_text)
 
+    def test_root_readme_has_distinct_skill_navigator(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Skill Navigator", readme)
+        self.assertIn("conference-cvpr", readme)
+        self.assertIn("一键完整流程", readme)
+        self.assertIn("采集 → 清洗 → 导出 → 检查", readme)
+        self.assertIn("只支持 CVPR main conference papers", readme)
+        self.assertIn("run_pipeline.py --year 2026", readme)
+        self.assertNotIn("| 技能 | 状态 | 用途 | 触发词 |", readme)
+
     def test_research_analysis_declares_three_grounding_modes(self):
         workflow = (
             PROJECT_ROOT
