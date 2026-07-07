@@ -1,6 +1,8 @@
-# WF5 — Research Analysis
+# WF5 - Metadata-Level Research Analysis
 
-Use this workflow when the user asks to analyze CVPR research directions, read papers, summarize trends, create paper notes, create a conference report, or generate research ideas.
+Use this workflow when the user asks for conference-level CVPR direction analysis, metadata-level topic grouping, preliminary trend summaries, or a conference report from normalized/exported CVPR metadata.
+
+This workflow is metadata-level and preliminary. It does not read full papers, extract methods, extract experiments, or generate paper-level ideas.
 
 ## Inputs
 
@@ -10,23 +12,28 @@ Prefer normalized JSON:
 data/normalized/computer_vision/cvpr/{year}/cvpr_{year}_normalized.json
 ```
 
-If exports already exist, Markdown and SQLite can also be used as supporting artifacts.
+If exports already exist, Markdown, JSON, SQLite, or Excel exports can be used as supporting artifacts. Do not download PDFs for WF5.
 
 ## Rules
 
 - Do not call external enrichment APIs in v1.
 - Do not download PDFs in bulk.
-- Use available metadata and any user-provided paper text.
+- Use only collected metadata fields such as title, abstract, authors, paper page URL, PDF URL, and supplementary URL.
 - If only CVF metadata is available, limit analysis to title + abstract signals.
-- Do not claim full-paper findings unless the user provided full paper text.
-- Do not invent code links, citation counts, experimental results, datasets, ablation findings, or leaderboard positions.
+- Do not claim full-paper findings.
+- Do not invent code links, citation counts, experimental results, datasets, ablation findings, leaderboard positions, project pages, GitHub addresses, or fields not actually collected.
 - Mark conclusions as preliminary when they are inferred only from titles and abstracts.
-- Use `../_shared/core/research-taxonomy.md` to organize directions.
-- Use `../_shared/templates/paper-note.md` for individual paper reading notes.
-- Use `../_shared/templates/conference-report.md` for conference-level summaries.
-- Use `../_shared/templates/idea-card.md` for research ideas.
+- Use `../_shared/core/research-taxonomy.md` to organize directions when needed.
 - Output Markdown files under `outputs/computer_vision/cvpr/{year}/analysis/`.
 - Include source rows, paper IDs, titles, and URLs where possible.
+
+## Handoff
+
+If the user asks to read a CVPR paper, summarize a full paper, extract methods, extract experiments, create paper reading notes, or analyze PDF fulltext, hand off to `cvpr-paper-reader`.
+
+If the user asks to generate idea cards, gap analysis, topic maps, method recombinations, or experiment plans from reader notes, hand off to `cvpr-idea-miner`.
+
+WF5 may recommend those handoffs, but it must not imply that conference-cvpr has read the full paper.
 
 ## Metadata Coverage Gate
 
@@ -58,28 +65,21 @@ Condition: `abstract_coverage >= 50%`.
 - Do not claim that the full papers were read.
 - Do not infer methods, datasets, ablations, or experimental results unless those details are explicitly present in the title or abstract.
 
-### `fulltext_assisted`
-
-Condition: the user provides full-text content, parsed PDF text, or explicit paper content. 中文条件：用户提供了全文文本、PDF解析文本或明确的论文内容。
-
-- This is the only mode that may discuss method details, experimental setup, datasets, ablation findings, and results.
-- Cite the user-provided text or parsed source for every detailed claim.
-- If only metadata is available, do not enter this mode.
-
 In every mode, never invent code links, citation counts, experimental results, datasets, ablation findings, leaderboard positions, project pages, GitHub addresses, or fields not actually collected.
 中文约束：无论哪种模式，都禁止编造代码链接、引用量、实验结果、数据集、ablation、leaderboard、项目主页、GitHub地址。
 
 ## Suggested Outputs
 
 ```text
-outputs/computer_vision/cvpr/{year}/analysis/cvpr_{year}_conference_report.md
-outputs/computer_vision/cvpr/{year}/analysis/cvpr_{year}_idea_cards.md
-outputs/computer_vision/cvpr/{year}/analysis/paper_notes/
+outputs/computer_vision/cvpr/{year}/analysis/cvpr_{year}_metadata_report.md
+outputs/computer_vision/cvpr/{year}/analysis/cvpr_{year}_topic_scan.md
+outputs/computer_vision/cvpr/{year}/analysis/cvpr_{year}_handoff_candidates.md
 ```
 
 ## Minimum Analysis Shape
 
 - Conference-level summary with paper count, data source, and caveats.
-- Topic map using the shared research taxonomy.
+- Metadata coverage summary, including `abstract_coverage`.
+- Topic scan using the shared research taxonomy where appropriate.
 - Representative paper list with `paper_id`, title, authors, and URLs.
-- Idea cards that state inspiration, hypothesis, method, evaluation, risk, and first experiment.
+- Handoff candidates for local fulltext reading or idea mining, clearly labeled as next steps.

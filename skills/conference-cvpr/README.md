@@ -12,7 +12,7 @@ CVPR Agent Skill for Codex / Claude Code.
 - `normalize-metadata`: 清洗并统一 metadata schema
 - `export-artifacts`: 输出 SQLite、Excel、Markdown、JSON
 - `completeness-check`: 生成 completeness report 和 failed items
-- `research-analysis`: 基于 normalized/exported 数据生成论文阅读笔记、会议报告、研究灵感卡片
+- `research-analysis`: 基于 normalized/exported metadata 做 metadata-level preliminary topic scan 和 conference report
 - `download-cvf-pdf`: 从本地 metadata 中显式下载指定 CVF PDF
 
 ## Default Workflow
@@ -60,7 +60,7 @@ No automatic full-conference PDF download. Collection still stores URLs only. To
 
 ```bash
 python skills/conference-cvpr/scripts/download_cvf_pdf.py \
-  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --metadata outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json \
   --paper-id CVPR2026_000002 \
   --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
   --dry-run
@@ -77,6 +77,14 @@ python skills/cvpr-paper-reader/scripts/extract_pdf_text.py \
 ```
 
 The downloader does not perform OCR, download code repositories, or automatically invoke reader or idea-miner workflows. PDFs and sidecars are ignored runtime artifacts.
+
+## Handoff Boundary
+
+`conference-cvpr` is responsible for conference-level metadata, exports, completeness checks, metadata-level preliminary analysis, and optional explicit CVF PDF download.
+
+Use `cvpr-paper-reader` for full paper reading, method extraction, experiment extraction, and paper reading notes from local PDF text.
+
+Use `cvpr-idea-miner` for topic maps, gap analysis, idea cards, and experiment plans from reader notes.
 
 ## Outputs
 
@@ -104,7 +112,7 @@ Implemented:
 - stable `paper_id`
 - completeness error/warning report
 - explicit selected-paper CVF PDF download
-- analysis task rules and shared templates
+- metadata-level preliminary analysis task rules
 - nature-academic-search style router with `always_load` and `axes.workflow`
 
 Reserved for later:

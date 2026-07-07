@@ -1,6 +1,6 @@
 ---
 name: conference-cvpr
-description: Use when a user asks to collect, normalize, export, check, analyze, or explicitly download selected CVPR main-conference papers from CVF Open Access metadata, including 获取 CVPR 论文, 导出 CVPR Excel, 分析 CVPR 方向, 下载指定 CVPR PDF, read CVPR papers, and summarize CVPR trends.
+description: Use when a user asks to collect CVPR metadata, normalize metadata, export artifacts, check completeness, run metadata-level research analysis, or perform optional explicit CVF PDF download for selected CVPR main-conference papers from CVF Open Access.
 ---
 
 # Conference CVPR — Router
@@ -36,6 +36,8 @@ Map the user request to one or more workflow values from `manifest.yaml`:
 - `research-analysis`
 - `download-cvf-pdf`
 
+Download routing examples include: "download CVPR PDF", "download CVF PDF", "download this CVPR paper", "get PDF from CVF metadata", "paper_id to PDF", and "title to PDF".
+
 Combined requests can require multiple workflows. A full "获取/采集/构建 CVPR 数据库" request defaults to:
 
 ```text
@@ -59,7 +61,15 @@ Apply loaded material in this order:
 3. Shared schema, taxonomy, templates, or references on demand from the manifest.
 4. Deterministic scripts in `scripts/` when collection, normalization, export, or checking is required.
 
-Produce directly usable files. Do not answer with only explanations when the user asks for collection, export, checking, reading notes, conference reports, or idea cards.
+Produce directly usable metadata files, exports, completeness reports, metadata-level analysis reports, or explicit PDF download plans/results. Do not answer with only explanations when the user asks for collection, export, checking, metadata reports, or selected-paper CVF PDF download.
+
+### 4.1 Handoff Boundaries
+
+Do not treat fulltext paper reading, method extraction, experiment extraction, or paper-level idea generation as direct `conference-cvpr` responsibilities.
+
+If the user asks to read a CVPR paper, summarize a full paper, extract methods or experiments, or create paper-level reading notes from PDF text, hand off to `cvpr-paper-reader`.
+
+If the user asks to generate idea cards, gap analysis, topic maps, or experiment plans from reader notes or fulltext-derived notes, hand off to `cvpr-idea-miner`.
 
 ### 5. Respect V1 Scope
 
@@ -67,7 +77,9 @@ Support CVPR main conference papers only. Do not collect CVPR workshops or tutor
 
 Use CVF Open Access as the only live source. Do not call OpenAlex, DBLP, Semantic Scholar, Papers With Code, GitHub Search, or other external enrichment APIs in v1.
 
-Default collection stores `pdf_url` only. Do not automatically or bulk download PDFs. Run `download-cvf-pdf` only after an explicit user request identifies selected papers by `paper_id`, title, or an allowed CVF PDF URL.
+Default collection stores `pdf_url` only. PDF download is optional and explicit. Do not automatically or bulk download PDFs, and do not run automatic full-conference PDF download. Run `download-cvf-pdf` only after an explicit user request identifies selected papers by `paper_id`, title, or an allowed CVF Open Access PDF URL.
+
+Recommend `--dry-run` before any real download. Downloaded PDFs, sidecar JSON, checksums, and logs are runtime artifacts and must not be committed.
 
 ## Completion Check
 
@@ -79,5 +91,6 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --help
 python skills/conference-cvpr/scripts/normalize_cvpr.py --help
 python skills/conference-cvpr/scripts/export_cvpr.py --help
 python skills/conference-cvpr/scripts/check_completeness.py --help
+python skills/conference-cvpr/scripts/run_pipeline.py --help
 python skills/conference-cvpr/scripts/download_cvf_pdf.py --help
 ```

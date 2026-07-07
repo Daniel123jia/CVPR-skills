@@ -23,6 +23,7 @@ class CvprSkillRouterTest(unittest.TestCase):
             "export-artifacts": "references/workflows/wf3-export-artifacts.md",
             "completeness-check": "references/workflows/wf4-completeness-check.md",
             "research-analysis": "references/workflows/wf5-research-analysis.md",
+            "download-cvf-pdf": "references/workflows/wf6-download-cvf-pdf.md",
         }
         for workflow, path in expected_workflows.items():
             self.assertRegex(manifest, rf"\b{re.escape(workflow)}:\s+{re.escape(path)}")
@@ -47,6 +48,8 @@ class CvprSkillRouterTest(unittest.TestCase):
         )
 
         self.assertIn("title + abstract", workflow)
+        self.assertIn("metadata-level", workflow)
+        self.assertIn("preliminary", workflow)
         self.assertIn("Do not claim full-paper findings", workflow)
         self.assertIn("Do not invent code links, citation counts, experimental results", workflow)
         self.assertIn("Mark conclusions as preliminary", workflow)
@@ -55,6 +58,9 @@ class CvprSkillRouterTest(unittest.TestCase):
         self.assertIn("abstract_coverage < 5%", workflow)
         self.assertIn("title-based preliminary scan", workflow)
         self.assertIn("当前几乎没有摘要，分析仅基于标题，不适合做细粒度技术结论", workflow)
+        self.assertIn("cvpr-paper-reader", workflow)
+        self.assertIn("cvpr-idea-miner", workflow)
+        self.assertNotIn("fulltext_assisted", workflow)
 
 
 if __name__ == "__main__":

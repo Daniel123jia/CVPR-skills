@@ -10,8 +10,10 @@ Use these routing rules:
 - Requests like "清洗 CVPR 数据", "统一字段", "normalize CVPR metadata" -> `normalize-metadata`.
 - Requests like "导出 CVPR Excel", "生成 SQLite", "export CVPR papers" -> `export-artifacts`.
 - Requests like "检查完整性", "缺失字段", "重复论文" -> `completeness-check`.
-- Requests like "分析 CVPR 研究方向", "生成论文笔记", "研究灵感" -> `research-analysis`.
-- Requests like "下载这篇 CVPR PDF", "按 paper_id 下载", or "download this CVF paper" -> `download-cvf-pdf`, but only after an explicit user request.
+- Requests like "分析 CVPR metadata 研究方向", "基于标题摘要做方向扫描", or "metadata-level CVPR topic scan" -> `research-analysis`.
+- Requests like "download CVPR PDF", "download CVF PDF", "download this CVPR paper", "get PDF from CVF metadata", "paper_id to PDF", "title to PDF", "下载这篇 CVPR PDF", "按 paper_id 下载", or "download this CVF paper" -> `download-cvf-pdf`, but only after an explicit user request.
+- Requests to read a CVPR paper, summarize a full paper, extract methods, extract experiments, or generate paper reading notes -> hand off to `cvpr-paper-reader`.
+- Requests for idea cards, gap analysis, method recombination, or experiment plans from reader notes -> hand off to `cvpr-idea-miner`.
 - Full pipeline/database requests -> `collect-cvf`, `normalize-metadata`, `export-artifacts`, `completeness-check`.
 
 ## Source Policy
@@ -20,11 +22,15 @@ Use CVF Open Access only in v1. Do not call OpenAlex, DBLP, Semantic Scholar, Pa
 
 Collect CVPR main conference papers only. Exclude workshops and tutorials.
 
-Store `pdf_url` only during collection. Do not automatically download PDFs or download a full conference. For an explicit user request, download only selected `openaccess.thecvf.com` PDF URLs through `download_cvf_pdf.py`.
+Store `pdf_url` only during collection. Do not automatically download PDFs or download a full conference. For an explicit user request, download only selected CVF Open Access PDF URLs through `download_cvf_pdf.py`; allowed URLs must resolve to `https://openaccess.thecvf.com/...pdf`.
+
+Recommend `--dry-run` first. PDF download is optional and explicit; downloaded PDFs, sidecar JSON, checksums, and logs are runtime artifacts.
 
 ## Output Policy
 
-Produce files, not just prose, when a task asks for data, exports, reports, notes, or idea cards.
+Produce files, not just prose, when a task asks for data, exports, completeness reports, metadata-level analysis, or explicit selected-paper PDF download results.
+
+Paper reading outputs belong to `cvpr-paper-reader`. Idea cards, gap analysis, topic maps from reader notes, and experiment plans belong to `cvpr-idea-miner`.
 
 Default paths:
 

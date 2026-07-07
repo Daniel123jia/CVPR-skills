@@ -1,10 +1,12 @@
 name: conference-cvpr
+# This is the skill-level internal/schema version. It does not need to match
+# the GitHub Release version such as v1.5 or v1.5.1.
 version: 1.5.0
 description: >
   Declarative manifest for the CVPR Agent Skill router. SKILL.md uses this file
   to load the minimal core layer and then select workflow fragments for CVPR
   paper collection, normalization, export, completeness checking, and research
-  analysis, and explicit selected-paper CVF PDF downloads.
+  metadata-level research analysis, and explicit selected-paper CVF PDF downloads.
 
 always_load:
   - static/core/tools.md
@@ -19,7 +21,7 @@ axes:
         normalize-metadata   — clean raw CVF records and write normalized metadata
         export-artifacts     — export normalized data to SQLite, Excel, Markdown, JSON
         completeness-check   — audit missing fields and duplicate titles
-        research-analysis    — create paper notes, conference reports, and idea cards
+        research-analysis    — create metadata-level preliminary topic scans and conference reports
         download-cvf-pdf     — explicitly download selected CVF PDFs from local metadata
     values:
       collect-cvf: references/workflows/wf1-collect-cvf.md
@@ -46,14 +48,10 @@ references:
       path: ../_shared/core/output-contract.md
     - condition: SQLite table and export column contract
       path: ../_shared/core/database-schema.md
-    - condition: research direction taxonomy for CVPR analysis and idea generation
+    - condition: research direction taxonomy for CVPR metadata analysis
       path: ../_shared/core/research-taxonomy.md
-    - condition: individual paper note output
-      path: ../_shared/templates/paper-note.md
     - condition: conference-level report output
       path: ../_shared/templates/conference-report.md
-    - condition: research idea card output
-      path: ../_shared/templates/idea-card.md
     - condition: CVF Open Access HTML parsing details
       path: references/cvf-openaccess.md
     - condition: CVPR year URL and day-link patterns
@@ -66,17 +64,20 @@ references:
 scope:
   includes:
     - CVPR main conference papers
-    - file-based reading and analysis outputs
+    - metadata collection, normalization, export, and completeness reports
+    - metadata-level preliminary research analysis
     - explicit selected-paper PDF downloads from CVF Open Access
   excludes:
     - CVPR workshops
     - automatic or full-conference PDF downloading
     - external enrichment APIs in v1
+    - code repository download
+    - OCR
 
 scripts:
-  pipeline: scripts/run_pipeline.py
   collect: scripts/collect_cvpr.py
   normalize: scripts/normalize_cvpr.py
   export: scripts/export_cvpr.py
   check: scripts/check_completeness.py
+  pipeline: scripts/run_pipeline.py
   download: scripts/download_cvf_pdf.py

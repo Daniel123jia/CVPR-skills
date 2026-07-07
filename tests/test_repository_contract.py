@@ -103,7 +103,7 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("run_pipeline.py --year 2026", readme)
         self.assertNotIn("| 技能 | 状态 | 用途 | 触发词 |", readme)
 
-    def test_research_analysis_declares_three_grounding_modes(self):
+    def test_research_analysis_stays_metadata_level_and_hands_off_fulltext(self):
         workflow = (
             PROJECT_ROOT
             / "skills"
@@ -113,11 +113,16 @@ class RepositoryContractTest(unittest.TestCase):
             / "wf5-research-analysis.md"
         ).read_text(encoding="utf-8")
 
-        for mode in ["title_only", "title_abstract", "fulltext_assisted"]:
+        for mode in ["title_only", "title_abstract"]:
             self.assertIn(mode, workflow)
+        self.assertIn("metadata-level", workflow)
+        self.assertIn("preliminary", workflow)
         self.assertIn("abstract_coverage < 5%", workflow)
         self.assertIn("abstract_coverage >= 50%", workflow)
-        self.assertIn("用户提供了全文文本", workflow)
+        self.assertIn("cvpr-paper-reader", workflow)
+        self.assertIn("cvpr-idea-miner", workflow)
+        self.assertNotIn("fulltext_assisted", workflow)
+        self.assertNotIn("用户提供了全文文本", workflow)
 
     def test_v143_collect_reader_notes_help_lists_quality_filters(self):
         script = PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "scripts" / "collect_reader_notes.py"
@@ -232,6 +237,15 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("version: 1.5.0", manifest)
         self.assertIn("download-cvf-pdf", manifest)
         self.assertIn("wf6-download-cvf-pdf.md", manifest)
+        for script_name in [
+            "collect: scripts/collect_cvpr.py",
+            "normalize: scripts/normalize_cvpr.py",
+            "export: scripts/export_cvpr.py",
+            "check: scripts/check_completeness.py",
+            "pipeline: scripts/run_pipeline.py",
+            "download: scripts/download_cvf_pdf.py",
+        ]:
+            self.assertIn(script_name, manifest)
         self.assertIn("download-cvf-pdf", skill)
         self.assertIn("optional PDF download", root_readme)
         self.assertIn("No automatic full-conference PDF download", root_readme)
@@ -242,6 +256,16 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("optional PDF download", conference_readme)
         self.assertIn("download results are runtime artifacts", tools)
         self.assertIn("explicit user request", routing)
+        for trigger in [
+            "download CVPR PDF",
+            "download CVF PDF",
+            "download this CVPR paper",
+            "get PDF from CVF metadata",
+            "paper_id to PDF",
+            "title to PDF",
+        ]:
+            self.assertIn(trigger, routing)
+        self.assertIn("CVF Open Access PDF URLs", routing)
         self.assertIn("download_cvf_pdf.py --help", ci)
 
         case = "optional_pdf_download_workflow"
@@ -259,6 +283,63 @@ class RepositoryContractTest(unittest.TestCase):
             "does not replace the evidence policy",
         ]:
             self.assertIn(phrase, expected_text)
+
+    def test_v151_conference_cvpr_contract_matches_actual_skill_boundary(self):
+        skill_files = sorted(
+            str(path.relative_to(PROJECT_ROOT))
+            for path in (PROJECT_ROOT / "skills").glob("*/SKILL.md")
+        )
+        self.assertEqual(
+            skill_files,
+            [
+                "skills/conference-cvpr/SKILL.md",
+                "skills/cvpr-idea-miner/SKILL.md",
+                "skills/cvpr-paper-reader/SKILL.md",
+            ],
+        )
+
+        skill = (PROJECT_ROOT / "skills" / "conference-cvpr" / "SKILL.md").read_text(encoding="utf-8")
+        manifest = (PROJECT_ROOT / "skills" / "conference-cvpr" / "manifest.yaml").read_text(encoding="utf-8")
+        root_readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+        tools = (
+            PROJECT_ROOT / "skills" / "conference-cvpr" / "static" / "core" / "tools.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("metadata-level research analysis", skill)
+        self.assertIn("optional explicit CVF PDF download", skill)
+        self.assertIn("cvpr-paper-reader", skill)
+        self.assertIn("cvpr-idea-miner", skill)
+        self.assertNotIn("read CVPR papers, and summarize CVPR trends", skill)
+        self.assertNotIn("fulltext_assisted", skill)
+        self.assertIn("GitHub Release version", root_readme)
+        self.assertIn("manifest.yaml version", root_readme)
+        self.assertIn("skill-level internal/schema version", root_readme)
+        self.assertIn("metadata-level preliminary", manifest)
+        self.assertNotIn("paper notes, conference reports, and idea cards", manifest)
+
+        for field in [
+            "Purpose",
+            "Typical command",
+            "Input",
+            "Output",
+            "Touches network?",
+            "Downloads PDF?",
+            "Runtime artifact policy",
+        ]:
+            self.assertIn(field, tools)
+        for script in [
+            "collect_cvpr.py",
+            "normalize_cvpr.py",
+            "export_cvpr.py",
+            "check_completeness.py",
+            "run_pipeline.py",
+            "download_cvf_pdf.py",
+        ]:
+            self.assertIn(script, tools)
+
+        deterministic_section = tools.split("## Handoff Tools", 1)[0]
+        self.assertNotIn("extract_pdf_text.py", deterministic_section)
+        self.assertNotIn("collect_reader_notes.py", deterministic_section)
 
     def test_v151_root_readme_documentation_polish_contract(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
