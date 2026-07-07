@@ -294,6 +294,27 @@ class RepositoryContractTest(unittest.TestCase):
             readme,
         )
 
+    def test_v151_root_readme_has_bilingual_layout(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+        required_phrases = [
+            "English | 中文",
+            "中文说明",
+            "中文快速导航",
+            "面向 CVPR 论文采集、全文精读与研究 idea 挖掘的 Agent Skill 工具箱",
+            "从 CVPR 年份开始",
+            "从 paper_id / 标题 / pdf_url 开始",
+            "从本地 PDF 开始",
+            "What Is CVPR-skills? / CVPR-skills 是什么？",
+            "What Can It Do? / 它能做什么？",
+            "End-to-End Workflows / 端到端工作流",
+            "Evidence Levels / 证据等级",
+            "Quality Guards / 质量护栏",
+            "Scope and Non-goals / 项目边界",
+        ]
+        for phrase in required_phrases:
+            self.assertIn(phrase, readme)
+
 
 if __name__ == "__main__":
     unittest.main()
