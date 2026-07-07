@@ -1,4 +1,6 @@
 import json
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -116,6 +118,58 @@ class RepositoryContractTest(unittest.TestCase):
         self.assertIn("abstract_coverage < 5%", workflow)
         self.assertIn("abstract_coverage >= 50%", workflow)
         self.assertIn("用户提供了全文文本", workflow)
+
+    def test_v143_collect_reader_notes_help_lists_quality_filters(self):
+        script = PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "scripts" / "collect_reader_notes.py"
+        result = subprocess.run(
+            [sys.executable, str(script), "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for flag in [
+            "--paper-id",
+            "--evidence-level",
+            "--min-evidence-level",
+            "--include-unknown-evidence",
+            "--dedupe-title",
+            "--selected-root",
+        ]:
+            self.assertIn(flag, result.stdout)
+
+    def test_v143_quality_docs_and_evals_exist(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+        paper_reader_contract = (
+            PROJECT_ROOT / "skills" / "cvpr-paper-reader" / "static" / "core" / "output-contract.md"
+        ).read_text(encoding="utf-8")
+        paper_reader_readme = (
+            PROJECT_ROOT / "skills" / "cvpr-paper-reader" / "README.md"
+        ).read_text(encoding="utf-8")
+        idea_contract = (
+            PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "static" / "core" / "output-contract.md"
+        ).read_text(encoding="utf-8")
+        idea_workflow = (
+            PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "references" / "workflows" / "wf1-topic-map.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("## Quality Guards", readme)
+        self.assertIn("Numeric Extraction Confidence", paper_reader_contract)
+        self.assertIn("reproduction_checklist.md", paper_reader_contract)
+        self.assertIn("reproduction_checklist.md", paper_reader_readme)
+        self.assertIn("feasibility_score", idea_contract)
+        self.assertIn("single-paper", idea_workflow)
+        self.assertIn("local topic map", idea_workflow)
+
+        for case in [
+            "reader_notes_filtering_and_dedupe",
+            "numeric_extraction_confidence",
+            "single_paper_topic_map_boundary",
+            "idea_feasibility_fields",
+        ]:
+            self.assertTrue((PROJECT_ROOT / "evals" / "prompts" / "{}.txt".format(case)).is_file(), case)
+            self.assertTrue((PROJECT_ROOT / "evals" / "expected" / "{}.md".format(case)).is_file(), case)
 
 
 if __name__ == "__main__":

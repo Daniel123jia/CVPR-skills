@@ -67,6 +67,23 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir output
 
 The script scans local Markdown notes only. It does not call external APIs, download PDFs, or perform OCR.
 
+For a single-paper fulltext validation case, prefer filtering to avoid mixing
+historical title-only, abstract-only, and fulltext samples:
+
+```bash
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
+  --input-dir outputs/computer_vision/cvpr/reader \
+  --selected-root outputs/computer_vision/cvpr/reader/directfisheye_gs_fulltext_test \
+  --min-evidence-level fulltext \
+  --dedupe-title prefer_highest_evidence \
+  --output outputs/computer_vision/cvpr/ideas/directfisheye_gs_fulltext_test/reader_notes_index.json
+```
+
+If the same paper appears at multiple evidence levels, prefer
+`--dedupe-title prefer_highest_evidence`. If `input_count < 3`, topic maps must
+be labeled as single-paper or local topic maps based on selected notes, not as a
+CVPR trend.
+
 ## Completion Check
 
 Before reporting success after modifying this skill, run:
@@ -77,4 +94,3 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
 python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
 python skills/conference-cvpr/scripts/run_pipeline.py --help
 ```
-

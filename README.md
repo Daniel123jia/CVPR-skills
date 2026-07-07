@@ -69,10 +69,23 @@ python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --limit 5
 Index local paper-reader notes before idea mining:
 
 ```bash
-python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
+  --input-dir outputs/computer_vision/cvpr/reader \
+  --selected-root outputs/computer_vision/cvpr/reader/{paper_id} \
+  --min-evidence-level fulltext \
+  --dedupe-title prefer_highest_evidence \
+  --output outputs/computer_vision/cvpr/ideas/{paper_id}/reader_notes_index.json
 ```
 
 Runtime outputs go under `data/`, `outputs/`, and `logs/`; they are intentionally ignored by git.
+
+## Quality Guards
+
+- Reader notes can be filtered by `paper_id`, `evidence_level`, and `min_evidence_level`.
+- Duplicate titles can use `--dedupe-title prefer_highest_evidence` so fulltext notes win over title-only or abstract-only notes.
+- Experiment tables should include `Numeric Extraction Confidence` to avoid overclaiming from compressed PDF table text.
+- Single-paper topic maps are local analyses based on selected notes, not conference-wide CVPR trends.
+- Idea cards include feasibility, implementation difficulty, data availability, risk level, first-week action, and stop condition.
 
 ## Clean clone validation
 

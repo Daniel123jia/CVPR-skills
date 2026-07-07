@@ -13,6 +13,7 @@
 3. Extract datasets, metrics, baselines, and ablation candidates only from provided evidence.
 4. Mark unverified experiment ingredients as assumptions or user choices.
 5. Build a staged plan: sanity check, minimal reproduction or proxy baseline, main comparison, ablation, risk fallback.
+6. Carry over idea-card feasibility fields such as difficulty, data availability, dependency on original code, first-week action, and stop condition.
 
 ## 输出格式
 
@@ -28,6 +29,7 @@ Write `experiment_plan.md` with:
 - Ablation or sensitivity checks
 - Risks and fallback plans
 - Evidence gaps
+- Feasibility fields carried from selected idea cards
 
 ## 反幻觉约束
 
@@ -35,4 +37,4 @@ Write `experiment_plan.md` with:
 - Do not claim an experiment will reproduce a paper unless evidence includes the needed setup.
 - If evidence is insufficient, write a plan skeleton and list required source materials.
 - Distinguish paper-backed experiment ingredients from agent-proposed implementation choices.
-
+- Stop conditions must be concrete, such as cannot obtain dataset, cannot reproduce baseline, regularizer degrades a specified metric, or no reliable boundary mask.

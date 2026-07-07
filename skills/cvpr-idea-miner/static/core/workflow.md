@@ -16,6 +16,31 @@ topic-map -> gap-analysis -> method-recombination -> idea-cards -> experiment-pl
 6. Mark every output with evidence level, source material, and status.
 7. Keep CVPR-only scope and refuse requests that require other conferences or external enrichment APIs.
 
+## Reader Notes Collection Guard
+
+When using `collect_reader_notes.py` for a single-paper fulltext validation,
+prefer:
+
+```bash
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
+  --input-dir outputs/computer_vision/cvpr/reader \
+  --selected-root outputs/computer_vision/cvpr/reader/directfisheye_gs_fulltext_test \
+  --min-evidence-level fulltext \
+  --dedupe-title prefer_highest_evidence \
+  --output outputs/computer_vision/cvpr/ideas/directfisheye_gs_fulltext_test/reader_notes_index.json
+```
+
+If scanning the whole reader directory, check for mixed `title_only`,
+`abstract_only`, and `fulltext` notes. If one paper appears at multiple evidence
+levels, prefer highest evidence before generating ideas.
+
+## Topic Map Boundary
+
+If `input_count < 3`, write a single-paper or local topic map and say it is
+based on selected notes. Do not call it a CVPR trend or CVPR 2026 trend.
+If `input_count >= 3`, a multi-paper topic map is allowed, but it must still
+stay within the provided evidence.
+
 ## Workflow Selection
 
 | User intent | Workflow |
@@ -27,4 +52,3 @@ topic-map -> gap-analysis -> method-recombination -> idea-cards -> experiment-pl
 | experiments, first runnable experiment, validation plan | `experiment-plan` |
 
 If a user asks for "research directions from CVPR 2026" and provides only a paper list, start with `topic-map` and mark `title_only` or `title_abstract` according to available fields.
-

@@ -32,3 +32,8 @@ Strictly ground every claim in the provided material.
 - Use `Not found in provided material` or `未在给定材料中找到` rather than filling gaps.
 - If a user asks for method or experiments under `title_only`, produce a warning file and state that the requested detail cannot be produced.
 - If a user asks for full reading under `abstract_only`, mark the result as `preliminary` and avoid method/experiment specifics beyond the abstract.
+- Experimental numbers extracted from PDF tables must include numeric extraction confidence.
+- If numeric confidence is `low`, do not make strong claims from those numbers.
+- If numeric confidence is `medium`, use cautious language and ask for manual PDF verification.
+- If different metrics trade off, do not write "uniformly best" or equivalent simplified claims.
+- Reproduction assumptions must be separated from paper-backed facts. Do not invent code links, optimizer settings, learning rates, iterations, external repositories, or missing supplementary details.

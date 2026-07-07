@@ -22,6 +22,22 @@ Evidence level controls the allowed depth. `cvpr-idea-miner` must read the
 
 Every idea card must label both `evidence source` and `evidence level`.
 
+When collecting notes from a full reader root, historical `title_only`,
+`abstract_only`, and `fulltext` samples can be mixed. For single-paper fulltext
+validation, prefer a filtered index:
+
+```bash
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
+  --input-dir outputs/computer_vision/cvpr/reader \
+  --selected-root outputs/computer_vision/cvpr/reader/directfisheye_gs_fulltext_test \
+  --min-evidence-level fulltext \
+  --dedupe-title prefer_highest_evidence \
+  --output outputs/computer_vision/cvpr/ideas/directfisheye_gs_fulltext_test/reader_notes_index.json
+```
+
+If the same paper appears at multiple evidence levels, prefer
+`--dedupe-title prefer_highest_evidence`.
+
 ## Workflows
 
 Default full pipeline:
@@ -53,3 +69,8 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir output
 ```
 
 The index includes `paper_id`, cleaned `title`, `evidence_level`, note root, and local note file paths. It scans local Markdown only.
+
+If `input_count < 3`, topic maps must be labeled as single-paper or local topic
+maps based on selected notes. Do not describe them as a CVPR trend or CVPR 2026
+trend. With `input_count >= 3`, multi-paper topic maps are allowed, but still
+must stay inside the provided evidence.

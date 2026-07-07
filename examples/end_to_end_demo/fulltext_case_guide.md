@@ -52,7 +52,12 @@ Required reader-note checks:
 Collect the reader notes:
 
 ```bash
-python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
+  --input-dir outputs/computer_vision/cvpr/reader \
+  --selected-root outputs/computer_vision/cvpr/reader/{paper_id} \
+  --min-evidence-level fulltext \
+  --dedupe-title prefer_highest_evidence \
+  --output outputs/computer_vision/cvpr/ideas/{paper_id}/reader_notes_index.json
 ```
 
 Then use `cvpr-idea-miner` to generate local idea mining artifacts such as:

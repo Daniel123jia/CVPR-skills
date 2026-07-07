@@ -27,7 +27,16 @@ method.md
 experiments.md
 limitations_and_ideas.md
 reading_note.md
+reproduction_checklist.md
 ```
+
+`reproduction_checklist.md` is optional. Use it when the user asks to reproduce
+the paper, wants to improve on it, or when fulltext evidence covers methods and
+experiments but code, supplement, or implementation details are missing.
+
+For `experiments.md`, include a `Numeric Extraction Confidence` section when
+numbers come from parsed PDF text. Low-confidence table extraction must not
+support strong conclusions; medium confidence requires cautious wording.
 
 Optional local PDF text extraction:
 

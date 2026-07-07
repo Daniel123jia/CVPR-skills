@@ -31,6 +31,8 @@ Strictly ground every claim in the provided CVPR material.
 
 - Mark evidence level near the top of every output file.
 - When using `reader_notes_index.json`, read each paper's `evidence_level` before deciding output depth.
+- When using an entire reader root, explicitly check whether `title_only`, `abstract_only`, and `fulltext` notes are mixed.
+- If duplicate titles appear with different evidence levels, prefer the highest-evidence record before generating detailed ideas.
 - Every claim about a paper must include `evidence source` with paper id, title, note path, abstract, or user-provided snippet.
 - Use `Not found in provided material` or `未在给定材料中找到` instead of filling gaps.
 - Method recombination is a proposed combination, not an existing paper conclusion unless the source explicitly says so.
@@ -39,3 +41,4 @@ Strictly ground every claim in the provided CVPR material.
 - For `reader_notes`, preserve the note-level evidence boundary; title-only notes remain title-only even after indexing.
 - For `fulltext_notes`, use the richer evidence only when the notes include fulltext-derived method, experiment, or limitation content.
 - For `user_hypothesis`, label user ideas as hypotheses before turning them into experiment plans.
+- If `input_count < 3`, topic maps are single-paper/local analyses based on selected notes; do not describe them as CVPR-wide trends.

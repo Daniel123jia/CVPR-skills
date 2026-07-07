@@ -37,6 +37,14 @@ Each idea must include:
 - `baseline candidates`
 - `risk`
 - `first runnable experiment`
+- `feasibility_score`: 1-5
+- `implementation_difficulty`: low / medium / high
+- `data_availability`: available / partially_available / unavailable / unknown
+- `dependency_on_original_code`: low / medium / high / unknown
+- `expected_novelty`: low / medium / high
+- `risk_level`: low / medium / high
+- `first_week_action`
+- `stop_condition`
 
 ## 反幻觉约束
 
@@ -45,3 +53,6 @@ Each idea must include:
 - Do not invent datasets or baselines; use `candidate, needs confirmation` only when the user explicitly asks for brainstorming beyond evidence.
 - Keep paper facts and proposed ideas separate.
 - Cite evidence source and evidence level for each idea.
+- `feasibility_score` describes startup cost and verifiability, not whether the idea will succeed.
+- If the idea needs original author code and no code link is present in the material, set `dependency_on_original_code` to `high` or `unknown`.
+- `first_week_action` and `stop_condition` must be specific and testable.
