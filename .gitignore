@@ -8,6 +8,7 @@ data/
 outputs/
 logs/
 *.bak.*
+*.pdf
 *.sqlite
 *.db
 *.xlsx

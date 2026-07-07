@@ -23,7 +23,8 @@ class V141DocsAndEvalsTest(unittest.TestCase):
             "data/",
             "outputs/",
             "logs/",
-            "PDF 必须是用户本地已有文件",
+            "optional PDF download",
+            "download_cvf_pdf.py",
             "cvpr-paper-reader",
             "cvpr-idea-miner",
         ]

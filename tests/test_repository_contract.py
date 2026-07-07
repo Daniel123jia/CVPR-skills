@@ -23,7 +23,7 @@ class RepositoryContractTest(unittest.TestCase):
     def test_gitignore_excludes_runtime_artifacts_and_common_binary_outputs(self):
         gitignore = (PROJECT_ROOT / ".gitignore").read_text(encoding="utf-8")
 
-        for pattern in [".venv/", "__pycache__/", "*.pyc", ".DS_Store", "data/", "outputs/", "logs/", "*.sqlite", "*.db", "*.xlsx"]:
+        for pattern in [".venv/", "__pycache__/", "*.pyc", ".DS_Store", "data/", "outputs/", "logs/", "*.pdf", "*.sqlite", "*.db", "*.xlsx"]:
             self.assertIn(pattern, gitignore)
 
     def test_requirements_pin_pypdf_to_python37_compatible_range(self):
@@ -195,6 +195,70 @@ class RepositoryContractTest(unittest.TestCase):
         case = "reproduction_checklist_integration"
         self.assertTrue((PROJECT_ROOT / "evals" / "prompts" / "{}.txt".format(case)).is_file())
         self.assertTrue((PROJECT_ROOT / "evals" / "expected" / "{}.md".format(case)).is_file())
+
+    def test_v15_optional_cvf_pdf_download_contract(self):
+        script = PROJECT_ROOT / "skills" / "conference-cvpr" / "scripts" / "download_cvf_pdf.py"
+        workflow = (
+            PROJECT_ROOT
+            / "skills"
+            / "conference-cvpr"
+            / "references"
+            / "workflows"
+            / "wf6-download-cvf-pdf.md"
+        )
+        manifest = (PROJECT_ROOT / "skills" / "conference-cvpr" / "manifest.yaml").read_text(encoding="utf-8")
+        skill = (PROJECT_ROOT / "skills" / "conference-cvpr" / "SKILL.md").read_text(encoding="utf-8")
+        conference_readme = (
+            PROJECT_ROOT / "skills" / "conference-cvpr" / "README.md"
+        ).read_text(encoding="utf-8")
+        root_readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+        tools = (
+            PROJECT_ROOT / "skills" / "conference-cvpr" / "static" / "core" / "tools.md"
+        ).read_text(encoding="utf-8")
+        routing = (
+            PROJECT_ROOT / "skills" / "conference-cvpr" / "static" / "core" / "routing-and-ops.md"
+        ).read_text(encoding="utf-8")
+        ci = (PROJECT_ROOT / ".github" / "workflows" / "test.yml").read_text(encoding="utf-8")
+
+        self.assertTrue(script.is_file())
+        result = subprocess.run(
+            [sys.executable, str(script), "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(workflow.is_file())
+        self.assertIn("version: 1.5.0", manifest)
+        self.assertIn("download-cvf-pdf", manifest)
+        self.assertIn("wf6-download-cvf-pdf.md", manifest)
+        self.assertIn("download-cvf-pdf", skill)
+        self.assertIn("optional PDF download", root_readme)
+        self.assertIn("No automatic full-conference PDF download", root_readme)
+        self.assertIn(
+            "metadata match -> optional PDF download -> extract text -> paper-reader -> idea-miner",
+            root_readme,
+        )
+        self.assertIn("optional PDF download", conference_readme)
+        self.assertIn("download results are runtime artifacts", tools)
+        self.assertIn("explicit user request", routing)
+        self.assertIn("download_cvf_pdf.py --help", ci)
+
+        case = "optional_pdf_download_workflow"
+        prompt = PROJECT_ROOT / "evals" / "prompts" / "{}.txt".format(case)
+        expected = PROJECT_ROOT / "evals" / "expected" / "{}.md".format(case)
+        self.assertTrue(prompt.is_file())
+        self.assertTrue(expected.is_file())
+        expected_text = expected.read_text(encoding="utf-8")
+        for phrase in [
+            "optional and explicit",
+            "CVF Open Access URLs",
+            "No automatic full-conference PDF download",
+            "No code repository download",
+            "runtime artifacts",
+            "does not replace the evidence policy",
+        ]:
+            self.assertIn(phrase, expected_text)
 
 
 if __name__ == "__main__":

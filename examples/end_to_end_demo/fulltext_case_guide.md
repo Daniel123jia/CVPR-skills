@@ -4,21 +4,33 @@ This guide describes a local fulltext acceptance case for the existing three CVP
 
 ## 1. Prepare A Local CVPR PDF
 
-Manually prepare one local CVPR PDF that you already have permission to use. The PDF 不提交仓库.
+Prepare one local CVPR PDF that you already have permission to use. It may already exist on disk, or you may use the optional explicit CVF downloader below. The PDF 不提交仓库.
 
 Rules:
 
-- Do not fetch papers through automation.
+- Do not automatically or bulk-download papers.
 - Do not use external enrichment services.
 - Do not add the PDF to git.
 - Keep the PDF path outside committed source, or under an ignored runtime directory.
+
+For a PDF represented in local metadata, preview the exact selection first:
+
+```bash
+python skills/conference-cvpr/scripts/download_cvf_pdf.py \
+  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --paper-id CVPR2026_000002 \
+  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
+  --dry-run
+```
+
+The downloader accepts only `https://openaccess.thecvf.com/...pdf`. Remove `--dry-run` only after checking the selected URL and path. It must not download a full conference or any code repository.
 
 ## 2. Extract Embedded Text
 
 Use `cvpr-paper-reader`'s local helper. It extracts embedded text only and does not perform OCR.
 
 ```bash
-python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --pdf path/to/local_cvpr_paper.pdf --output outputs/computer_vision/cvpr/reader/{paper_id}/paper_text.md
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --pdf outputs/computer_vision/cvpr/pdfs/2026/CVPR2026_000002.pdf --output outputs/computer_vision/cvpr/reader/CVPR2026_000002/paper_text.md
 ```
 
 If `extract_pdf_text.py` reports `Missing dependency pypdf` or a `pypdf` compatibility error, run `python -m pip install -r requirements.txt` and confirm the installed `pypdf` version is within `>=3.17.4,<4.0`.

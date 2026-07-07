@@ -2,7 +2,7 @@
 
 CVPR Agent Skill for Codex / Claude Code.
 
-第一版只使用 CVF Open Access 作为主数据源，采集 CVPR main conference papers，不采集 workshops，不下载 PDF 文件，只保存 `pdf_url`，不接 OpenAlex、DBLP、Semantic Scholar 等外部 API。
+只使用 CVF Open Access 作为主数据源，采集 CVPR main conference papers，不采集 workshops，不接 OpenAlex、DBLP、Semantic Scholar 等外部 API。默认流程只保存 `pdf_url`；v1.5 另提供 optional PDF download，且必须由用户显式选择论文后触发。
 
 ## Workflow Axis
 
@@ -13,6 +13,7 @@ CVPR Agent Skill for Codex / Claude Code.
 - `export-artifacts`: 输出 SQLite、Excel、Markdown、JSON
 - `completeness-check`: 生成 completeness report 和 failed items
 - `research-analysis`: 基于 normalized/exported 数据生成论文阅读笔记、会议报告、研究灵感卡片
+- `download-cvf-pdf`: 从本地 metadata 中显式下载指定 CVF PDF
 
 ## Default Workflow
 
@@ -53,6 +54,30 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 
 `--enrich-pages` visits each `paper_page_url` to fill missing abstracts and related links. Keep it disabled for fast full-conference runs; use `--limit`, `--sleep`, and `--resume` for staged enrichment instead of requesting all paper pages at once.
 
+## Optional PDF Download
+
+No automatic full-conference PDF download. Collection still stores URLs only. To enter the local fulltext workflow, select a paper explicitly and start with a dry run:
+
+```bash
+python skills/conference-cvpr/scripts/download_cvf_pdf.py \
+  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --paper-id CVPR2026_000002 \
+  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
+  --dry-run
+```
+
+Remove `--dry-run` to download. You may replace `--paper-id` with `--title`; ambiguous fuzzy matches print candidates and require `paper_id`. Direct `--pdf-url` mode accepts only `https://openaccess.thecvf.com/...pdf` and also requires a `--paper-id` for the local filename.
+
+After download, extract embedded text separately:
+
+```bash
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py \
+  --pdf outputs/computer_vision/cvpr/pdfs/2026/CVPR2026_000002.pdf \
+  --output outputs/computer_vision/cvpr/reader/CVPR2026_000002/paper_text.md
+```
+
+The downloader does not perform OCR, download code repositories, or automatically invoke reader or idea-miner workflows. PDFs and sidecars are ignored runtime artifacts.
+
 ## Outputs
 
 - Raw JSON: `data/raw/computer_vision/cvpr/{year}/cvpr_{year}_raw.json`
@@ -78,6 +103,7 @@ Implemented:
 - URL normalization with `urljoin`
 - stable `paper_id`
 - completeness error/warning report
+- explicit selected-paper CVF PDF download
 - analysis task rules and shared templates
 - nature-academic-search style router with `always_load` and `axes.workflow`
 

@@ -1,0 +1,3 @@
+用户说：“我已经运行 conference-cvpr 得到了本地 CVPR metadata。请按 title 找到 ‘SAM 3D Body: Robust Full-Body Human Mesh Recovery’，先预览，再下载 PDF 并进入全文阅读。不要下载整届论文，也不要找代码仓库。”
+
+请说明你会选择的 workflow、允许的来源、推荐命令、产生的运行文件，以及下载后如何进入 paper-reader。若 title 模糊匹配出现多个候选，说明下一步该怎么做。

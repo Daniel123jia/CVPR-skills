@@ -1,6 +1,6 @@
 ---
 name: conference-cvpr
-description: CVPR Agent Skill for collecting, normalizing, exporting, checking, reading, analyzing, and generating research ideas from CVPR main-conference papers. Use when the user asks 获取 CVPR 2026 论文, 采集 CVPR 论文, 构建 CVPR 数据库, 导出 CVPR 论文 Excel, 分析 CVPR 研究方向, read CVPR papers, summarize CVPR trends, or generate CVPR research ideas. First version only supports CVPR main conference papers from CVF Open Access; it excludes workshops, external APIs, and PDF downloading.
+description: Use when a user asks to collect, normalize, export, check, analyze, or explicitly download selected CVPR main-conference papers from CVF Open Access metadata, including 获取 CVPR 论文, 导出 CVPR Excel, 分析 CVPR 方向, 下载指定 CVPR PDF, read CVPR papers, and summarize CVPR trends.
 ---
 
 # Conference CVPR — Router
@@ -34,6 +34,7 @@ Map the user request to one or more workflow values from `manifest.yaml`:
 - `export-artifacts`
 - `completeness-check`
 - `research-analysis`
+- `download-cvf-pdf`
 
 Combined requests can require multiple workflows. A full "获取/采集/构建 CVPR 数据库" request defaults to:
 
@@ -66,7 +67,7 @@ Support CVPR main conference papers only. Do not collect CVPR workshops or tutor
 
 Use CVF Open Access as the only live source. Do not call OpenAlex, DBLP, Semantic Scholar, Papers With Code, GitHub Search, or other external enrichment APIs in v1.
 
-Do not bulk download PDFs. Store `pdf_url` only.
+Default collection stores `pdf_url` only. Do not automatically or bulk download PDFs. Run `download-cvf-pdf` only after an explicit user request identifies selected papers by `paper_id`, title, or an allowed CVF PDF URL.
 
 ## Completion Check
 
@@ -78,4 +79,5 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --help
 python skills/conference-cvpr/scripts/normalize_cvpr.py --help
 python skills/conference-cvpr/scripts/export_cvpr.py --help
 python skills/conference-cvpr/scripts/check_completeness.py --help
+python skills/conference-cvpr/scripts/download_cvf_pdf.py --help
 ```

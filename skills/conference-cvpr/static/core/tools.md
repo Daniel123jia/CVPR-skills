@@ -13,6 +13,7 @@ Run scripts from the repository root or from the working directory where runtime
 | normalize-metadata | `scripts/normalize_cvpr.py` | Normalize raw CVF records into the shared paper schema |
 | export-artifacts | `scripts/export_cvpr.py` | Export normalized JSON to SQLite, Excel, Markdown, and JSON |
 | completeness-check | `scripts/check_completeness.py` | Generate completeness report and failed item list |
+| download-cvf-pdf | `scripts/download_cvf_pdf.py` | Explicitly download selected CVF PDFs from local metadata |
 
 普通用户优先使用 `run_pipeline.py`。高级用户需要重跑局部步骤、指定输入文件或调试单步问题时，再分别运行 `collect_cvpr.py`、`normalize_cvpr.py`、`export_cvpr.py`、`check_completeness.py`。
 
@@ -27,6 +28,7 @@ Run scripts from the repository root or from the working directory where runtime
 | 导出 Excel/SQLite/Markdown/JSON | `export-artifacts` / `export_cvpr.py` |
 | 检查缺失字段和重复论文 | `completeness-check` / `check_completeness.py` |
 | 研究方向分析 | `research-analysis`; default does not call external APIs |
+| 下载一篇指定 CVPR PDF | `download-cvf-pdf` / `download_cvf_pdf.py`; recommend `--dry-run` first |
 
 ## Command Pattern
 
@@ -46,7 +48,19 @@ python skills/conference-cvpr/scripts/export_cvpr.py --year 2026
 python skills/conference-cvpr/scripts/check_completeness.py --year 2026
 ```
 
-Every script supports `--year`, `--output-dir`, and `--help`. Normalization, export, and checking also support `--input-file`.
+The collection pipeline scripts support `--year`, `--output-dir`, and `--help`. Normalization, export, and checking also support `--input-file`.
+
+Optional explicit single-paper download:
+
+```bash
+python skills/conference-cvpr/scripts/download_cvf_pdf.py \
+  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --paper-id CVPR2026_000002 \
+  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
+  --dry-run
+```
+
+Only exact `https://openaccess.thecvf.com/...pdf` URLs are allowed. Repeated `--paper-id` values require `--allow-batch`, explicit `--limit`, and explicit `--sleep`; never use batch mode by default.
 
 `collect_cvpr.py` defaults to fast listing-page collection. This keeps full-conference runs quick but may leave many abstracts empty because CVF listing pages do not always expose abstracts.
 
@@ -67,4 +81,4 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 
 ## Runtime Artifacts
 
-The scripts write `data/`, `outputs/`, and `logs/` under the current working directory. These are runtime artifacts, not skill source files.
+The scripts write `data/`, `outputs/`, and `logs/` under the current working directory. These are runtime artifacts, not skill source files. PDF download results are runtime artifacts and must not be committed.

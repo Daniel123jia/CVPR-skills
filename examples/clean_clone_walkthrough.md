@@ -1,6 +1,6 @@
 # Clean Clone Walkthrough
 
-This walkthrough verifies the repository from a clean clone to a first local CVPR run. It does not require external enrichment APIs, PDF downloads, or committed runtime artifacts.
+This walkthrough verifies the repository from a clean clone to a first local CVPR run. It does not require external enrichment APIs, a live PDF download, or committed runtime artifacts.
 
 ## 1. Clone The Repository
 
@@ -49,7 +49,21 @@ logs/
 
 These are generated runtime artifacts and must not be committed to the repository.
 
-## 6. Enter The Reader Flow
+## 6. Optionally Download One Selected PDF
+
+The optional PDF download is explicit and outside the default pipeline. Preview one metadata match first:
+
+```bash
+python skills/conference-cvpr/scripts/download_cvf_pdf.py \
+  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --paper-id CVPR2026_000002 \
+  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
+  --dry-run
+```
+
+Remove `--dry-run` to download that selected CVF PDF. The script accepts only `openaccess.thecvf.com` PDF URLs and never downloads the full conference automatically. Keep the PDF and sidecar out of git.
+
+## 7. Enter The Reader Flow
 
 Use `cvpr-paper-reader` when you want paper-level notes:
 
@@ -57,12 +71,12 @@ Use `cvpr-paper-reader` when you want paper-level notes:
 - `abstract_only`: title plus abstract.
 - `fulltext`: extracted text from a user-provided local PDF or pasted paper text.
 
-PDF 必须是用户本地已有文件. The project must not automatically download PDFs.
+Use a PDF already on disk or one explicitly selected through the optional downloader. The project must not automatically download PDFs.
 
 For local fulltext validation, first extract embedded PDF text:
 
 ```bash
-python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --pdf path/to/local_cvpr_paper.pdf --output outputs/computer_vision/cvpr/reader/{paper_id}/paper_text.md
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --pdf outputs/computer_vision/cvpr/pdfs/2026/CVPR2026_000002.pdf --output outputs/computer_vision/cvpr/reader/CVPR2026_000002/paper_text.md
 ```
 
 Then generate:
@@ -74,7 +88,7 @@ outputs/computer_vision/cvpr/reader/{paper_id}/experiments.md
 outputs/computer_vision/cvpr/reader/{paper_id}/limitations_and_ideas.md
 ```
 
-## 7. Enter The Idea-Miner Flow
+## 8. Enter The Idea-Miner Flow
 
 Use `cvpr-idea-miner` after reader notes exist:
 

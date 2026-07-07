@@ -11,6 +11,7 @@ Use these routing rules:
 - Requests like "导出 CVPR Excel", "生成 SQLite", "export CVPR papers" -> `export-artifacts`.
 - Requests like "检查完整性", "缺失字段", "重复论文" -> `completeness-check`.
 - Requests like "分析 CVPR 研究方向", "生成论文笔记", "研究灵感" -> `research-analysis`.
+- Requests like "下载这篇 CVPR PDF", "按 paper_id 下载", or "download this CVF paper" -> `download-cvf-pdf`, but only after an explicit user request.
 - Full pipeline/database requests -> `collect-cvf`, `normalize-metadata`, `export-artifacts`, `completeness-check`.
 
 ## Source Policy
@@ -19,7 +20,7 @@ Use CVF Open Access only in v1. Do not call OpenAlex, DBLP, Semantic Scholar, Pa
 
 Collect CVPR main conference papers only. Exclude workshops and tutorials.
 
-Do not bulk download PDFs. Store `pdf_url` only.
+Store `pdf_url` only during collection. Do not automatically download PDFs or download a full conference. For an explicit user request, download only selected `openaccess.thecvf.com` PDF URLs through `download_cvf_pdf.py`.
 
 ## Output Policy
 
@@ -32,6 +33,7 @@ data/raw/computer_vision/cvpr/{year}/cvpr_{year}_raw.json
 data/normalized/computer_vision/cvpr/{year}/cvpr_{year}_normalized.json
 outputs/computer_vision/cvpr/{year}/
 outputs/computer_vision/cvpr/{year}/analysis/
+outputs/computer_vision/cvpr/pdfs/{year}/
 ```
 
 Existing files are backed up before replacement.
@@ -45,3 +47,5 @@ Existing files are backed up before replacement.
 - If a script fails, report the failing command and the relevant log path.
 - If data is incomplete, still write artifacts and record issues in `completeness_report.md` and `failed_items.json`.
 - If the user asks for a non-CVPR conference, state that v1 only supports CVPR and do not silently switch scope.
+- If title lookup is ambiguous, list candidates and require `paper_id`; do not choose or download automatically.
+- If a PDF already exists, skip it unless the user explicitly requests `--force`.

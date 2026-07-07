@@ -29,5 +29,6 @@ jobs:
       - name: Check helper CLIs
         run: |
           python skills/conference-cvpr/scripts/run_pipeline.py --help
+          python skills/conference-cvpr/scripts/download_cvf_pdf.py --help
           python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
           python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help

@@ -19,6 +19,7 @@ class CiAndFulltextGuideTest(unittest.TestCase):
             "pip install -r requirements.txt",
             "python -m unittest discover -s tests",
             "python skills/conference-cvpr/scripts/run_pipeline.py --help",
+            "python skills/conference-cvpr/scripts/download_cvf_pdf.py --help",
             "python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help",
             "python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help",
         ]:
@@ -60,13 +61,15 @@ class CiAndFulltextGuideTest(unittest.TestCase):
             "未出现的实验结果",
             "outputs/",
             "PDF",
+            "download_cvf_pdf.py",
+            "--dry-run",
+            "openaccess.thecvf.com",
             "Excel",
             "SQLite",
         ]
         for phrase in required_phrases:
             self.assertIn(phrase, guide)
 
-        self.assertNotIn("download PDF", guide.lower())
         self.assertNotIn("external API", guide)
 
     def test_demo_readme_links_fulltext_case_guide(self):
