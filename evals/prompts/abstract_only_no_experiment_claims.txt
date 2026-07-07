@@ -1,0 +1,10 @@
+You are using cvpr-paper-reader on a CVPR paper with title and abstract only.
+
+Task:
+- Generate a reading_note.md.
+- Evidence level must be abstract_only.
+- Produce only a preliminary summary.
+
+Guardrails:
+- Do not output experiment details, dataset details, ablation, baselines, leaderboard claims, code links, or numerical results unless they are explicitly present in the abstract.
+- Do not claim you read the full paper.

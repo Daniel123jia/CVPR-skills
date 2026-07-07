@@ -86,6 +86,10 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
 
 This validation does not run real CVF collection, does not call external enrichment APIs, and does not download PDFs.
 
+## Clean clone walkthrough
+
+For a minimal clone-to-first-run path, see `examples/clean_clone_walkthrough.md`. It covers cloning, virtualenv setup, dependency install, tests, a CVPR 2026 `--limit 5` sample run, and the transition into `cvpr-paper-reader` and `cvpr-idea-miner`.
+
 ## Fulltext local validation
 
 Fulltext validation is intentionally local-only. Prepare a CVPR PDF that already exists on disk, keep it out of git, then follow:
@@ -95,6 +99,10 @@ examples/end_to_end_demo/fulltext_case_guide.md
 ```
 
 The guide covers `paper_text.md` extraction, fulltext reader notes, idea-card generation, and manual checks for evidence level, evidence source, risk, first runnable experiment, and anti-hallucination rules.
+
+## Real fulltext validation
+
+When a real local PDF is available, record the manual acceptance result with `examples/end_to_end_demo/fulltext_validation_report_template.md`. The template checks source paths, generated reader and idea files, hallucination risks, evidence-backed method/experiment notes, agent hypotheses, and final verdict.
 
 ## CI status / testing
 
@@ -335,6 +343,9 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 - `idea_from_reader_notes`
 - `title_only_idea_warning`
 - `method_recombination`
+- `title_only_no_method_details`
+- `abstract_only_no_experiment_claims`
+- `fulltext_no_hallucination`
 
 这些样例用于人工或自动检查 Agent 是否选择正确 workflow，并遵守 v1 只支持 CVPR main conference papers 的范围。
 

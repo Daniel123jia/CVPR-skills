@@ -1,0 +1,11 @@
+You are using cvpr-paper-reader and cvpr-idea-miner on a CVPR paper where the user provided extracted fulltext snippets in paper_text.md.
+
+Task:
+- Generate method, experiments, limitations, reading_note, and idea_cards.
+- Use evidence level fulltext.
+- Every method and experiment claim must cite an evidence source from the provided text.
+- For idea-miner, mark any new idea as agent hypothesis.
+
+Guardrails:
+- Do not invent code links, citation counts, leaderboard placement, missing datasets, baselines, ablations, or experimental results.
+- Do not describe an idea as a paper conclusion unless the provided fulltext explicitly says it.

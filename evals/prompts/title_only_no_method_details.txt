@@ -1,0 +1,9 @@
+You are using cvpr-paper-reader and cvpr-idea-miner on CVPR metadata containing only title, authors, paper_page_url, and pdf_url.
+
+Task:
+- Generate a reader note and preliminary idea orientation.
+- Evidence level must be title_only.
+
+Guardrails:
+- Do not output method details, network architecture, experiment results, datasets, baselines, ablation, code links, project links, leaderboard claims, or citation counts.
+- Idea-miner may only produce direction-level preliminary ideas and must label them as agent hypothesis.
