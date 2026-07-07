@@ -95,7 +95,7 @@ class RepositoryContractTest(unittest.TestCase):
     def test_root_readme_has_distinct_skill_navigator(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
-        self.assertIn("## Skill Navigator", readme)
+        self.assertIn("## Skill 导航 / Skill Navigator", readme)
         self.assertIn("conference-cvpr", readme)
         self.assertIn("一键完整流程", readme)
         self.assertIn("采集 → 清洗 → 导出 → 检查", readme)
@@ -155,7 +155,7 @@ class RepositoryContractTest(unittest.TestCase):
             PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "references" / "workflows" / "wf1-topic-map.md"
         ).read_text(encoding="utf-8")
 
-        self.assertIn("## Quality Guards", readme)
+        self.assertIn("## 质量护栏 / Quality Guards", readme)
         self.assertIn("--selected-root outputs/computer_vision/cvpr/reader/{paper_id}", readme)
         self.assertIn("--input-dir outputs/computer_vision/cvpr/reader", readme)
         self.assertIn("Numeric Extraction Confidence", paper_reader_contract)
@@ -298,19 +298,21 @@ class RepositoryContractTest(unittest.TestCase):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
         required_phrases = [
-            "English | 中文",
+            "中文 | English",
             "中文说明",
             "中文快速导航",
             "面向 CVPR 论文采集、全文精读与研究 idea 挖掘的 Agent Skill 工具箱",
             "从 CVPR 年份开始",
             "从 paper_id / 标题 / pdf_url 开始",
             "从本地 PDF 开始",
-            "What Is CVPR-skills? / CVPR-skills 是什么？",
-            "What Can It Do? / 它能做什么？",
-            "End-to-End Workflows / 端到端工作流",
-            "Evidence Levels / 证据等级",
-            "Quality Guards / 质量护栏",
-            "Scope and Non-goals / 项目边界",
+            "CVPR-skills 是什么？ / What Is CVPR-skills?",
+            "它能做什么？ / What Can It Do?",
+            "端到端工作流 / End-to-End Workflows",
+            "证据等级 / Evidence Levels",
+            "质量护栏 / Quality Guards",
+            "项目边界 / Scope and Non-goals",
+            "| 输入 | 使用 skill | 证据等级 | 输出 | 适合场景 |",
+            "| 证据等级 | 可以写什么 | 不能越界 |",
         ]
         for phrase in required_phrases:
             self.assertIn(phrase, readme)
