@@ -50,11 +50,15 @@ conference-cvpr       ->  cvpr-paper-reader       ->  cvpr-idea-miner
 
 ## Quick Start
 
+Recommended Python: 3.10 or 3.11. CI currently validates Python 3.11.
+
 ```bash
-python3.10 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+PDF text extraction uses `pypdf`. The dependency is pinned to `pypdf>=3.17.4,<4.0` to keep a stable compatible range and avoid old-environment incompatibilities.
 
 Run a small CVPR collection sample:
 

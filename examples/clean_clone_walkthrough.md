@@ -17,6 +17,8 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 ```
 
+If your system does not have `python3.11`, use Python 3.10+.
+
 ## 3. Install Dependencies
 
 ```bash

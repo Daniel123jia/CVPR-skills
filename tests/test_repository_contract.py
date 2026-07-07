@@ -24,6 +24,11 @@ class RepositoryContractTest(unittest.TestCase):
         for pattern in [".venv/", "__pycache__/", "*.pyc", ".DS_Store", "data/", "outputs/", "logs/", "*.sqlite", "*.db", "*.xlsx"]:
             self.assertIn(pattern, gitignore)
 
+    def test_requirements_pin_pypdf_to_python37_compatible_range(self):
+        requirements = (PROJECT_ROOT / "requirements.txt").read_text(encoding="utf-8")
+
+        self.assertIn("pypdf>=3.17.4,<4.0", requirements.splitlines())
+
     def test_plugin_and_marketplace_metadata_describe_cvpr_skills(self):
         plugin = json.loads((PROJECT_ROOT / "plugin.json").read_text(encoding="utf-8"))
         marketplace = json.loads((PROJECT_ROOT / "marketplace.json").read_text(encoding="utf-8"))

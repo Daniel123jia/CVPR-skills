@@ -21,6 +21,8 @@ Use `cvpr-paper-reader`'s local helper. It extracts embedded text only and does 
 python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --pdf path/to/local_cvpr_paper.pdf --output outputs/computer_vision/cvpr/reader/{paper_id}/paper_text.md
 ```
 
+If `extract_pdf_text.py` reports `Missing dependency pypdf` or a `pypdf` compatibility error, run `python -m pip install -r requirements.txt` and confirm the installed `pypdf` version is within `>=3.17.4,<4.0`.
+
 Expected local artifact:
 
 ```text
