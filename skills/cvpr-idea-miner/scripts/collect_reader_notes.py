@@ -17,6 +17,7 @@ NOTE_FILES = {
     "method": "method.md",
     "experiments": "experiments.md",
     "limitations_and_ideas": "limitations_and_ideas.md",
+    "reproduction_checklist": "reproduction_checklist.md",
 }
 
 TITLE_DECORATIONS = [
@@ -58,7 +59,8 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(
         description=(
             "Index cvpr-paper-reader outputs by scanning reading_note.md, "
-            "method.md, experiments.md, and limitations_and_ideas.md. "
+            "method.md, experiments.md, limitations_and_ideas.md, and optional "
+            "reproduction_checklist.md. "
             "No network, PDF download, or OCR is performed."
         )
     )

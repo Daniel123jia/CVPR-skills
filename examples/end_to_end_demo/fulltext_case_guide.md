@@ -40,12 +40,23 @@ outputs/computer_vision/cvpr/reader/{paper_id}/experiments.md
 outputs/computer_vision/cvpr/reader/{paper_id}/limitations_and_ideas.md
 ```
 
+When fulltext provides enough method and experiment setup, optionally generate:
+
+```text
+outputs/computer_vision/cvpr/reader/{paper_id}/reproduction_checklist.md
+```
+
+This fifth artifact is recommended when reproducing or improving the paper.
+Selected-root note collection records it automatically when present. It remains
+an ignored runtime output and must not be committed.
+
 Required reader-note checks:
 
 - Mark `Evidence level: fulltext`.
 - Cite `paper_text.md` as the evidence source.
 - Keep method, experiment, and limitation claims tied to text evidence.
 - Use `Not found in provided material` or `未在给定材料中找到` for missing fields.
+- Keep missing code, hyperparameters, supplementary details, and unavailable datasets as evidence gaps in `reproduction_checklist.md`.
 
 ## 4. Generate Idea Cards
 

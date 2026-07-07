@@ -174,6 +174,28 @@ class RepositoryContractTest(unittest.TestCase):
             self.assertTrue((PROJECT_ROOT / "evals" / "prompts" / "{}.txt".format(case)).is_file(), case)
             self.assertTrue((PROJECT_ROOT / "evals" / "expected" / "{}.md".format(case)).is_file(), case)
 
+    def test_v145_reproduction_checklist_integration_contract(self):
+        script = (
+            PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "scripts" / "collect_reader_notes.py"
+        ).read_text(encoding="utf-8")
+        reader_contract = (
+            PROJECT_ROOT / "skills" / "cvpr-paper-reader" / "static" / "core" / "output-contract.md"
+        ).read_text(encoding="utf-8")
+        idea_contract = (
+            PROJECT_ROOT / "skills" / "cvpr-idea-miner" / "static" / "core" / "output-contract.md"
+        ).read_text(encoding="utf-8")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn('"reproduction_checklist": "reproduction_checklist.md"', script)
+        self.assertIn("optional reader artifact", reader_contract)
+        self.assertIn("reproduction_checklist", idea_contract)
+        self.assertIn("evidence source", idea_contract)
+        self.assertIn("`reproduction_checklist.md` is an optional reader artifact", readme)
+
+        case = "reproduction_checklist_integration"
+        self.assertTrue((PROJECT_ROOT / "evals" / "prompts" / "{}.txt".format(case)).is_file())
+        self.assertTrue((PROJECT_ROOT / "evals" / "expected" / "{}.md".format(case)).is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

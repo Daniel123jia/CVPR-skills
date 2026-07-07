@@ -67,6 +67,11 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir output
 
 The script scans local Markdown notes only. It does not call external APIs, download PDFs, or perform OCR.
 
+If a reader directory contains optional `reproduction_checklist.md`, the index
+records it as `files.reproduction_checklist`. Use it only as an evidence source
+for feasibility fields and experiment planning; missing code or hyperparameters
+remain evidence gaps. Its absence does not block idea mining.
+
 For a single-paper fulltext validation case, prefer filtering to avoid mixing
 historical title-only, abstract-only, and fulltext samples:
 

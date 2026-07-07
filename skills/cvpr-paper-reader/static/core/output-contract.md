@@ -39,7 +39,7 @@ Use Chinese for the main content unless the user asks otherwise.
 - `experiments.md`: datasets, metrics, baselines, main results, and ablations.
 - `limitations_and_ideas.md`: limitations, risks, missing evidence, and grounded research ideas.
 - `reading_note.md`: integrated Chinese reading note that links or summarizes the other artifacts.
-- `reproduction_checklist.md`: optional reproducibility bridge for users who want to reproduce or improve the paper.
+- `reproduction_checklist.md`: optional reader artifact and reproducibility bridge for users who want to reproduce or improve the paper. `cvpr-idea-miner` may use it as evidence for feasibility assessment and experiment planning.
 
 ## Numeric Extraction Confidence
 
@@ -69,9 +69,10 @@ include an evidence anchor, and compressed PDF table extraction must be stated.
 ## Reproduction Checklist
 
 Use `reproduction_checklist.md` when the user asks to reproduce the paper, wants
-to build an improvement, or fulltext contains methods and experiments while
-supplement/code details are missing. Do not create a detailed reproduction
-checklist without fulltext evidence.
+to build an improvement, or fulltext contains enough methods and experiment
+setup to support a reproduction plan. Do not create a detailed reproduction
+checklist without fulltext evidence. Missing code, supplementary material, key
+hyperparameters, datasets, or training details must remain evidence gaps.
 
 Required sections:
 
@@ -82,7 +83,7 @@ Required sections:
 5. Minimum reproducible target: smallest dataset/scene, baseline to reproduce first, first metric to check, expected evidence source, what not to claim before reproduction.
 
 Clearly separate paper-backed facts from reproduction assumptions. Never invent
-code links, hyperparameters, training iterations, external repos, or missing
-supplementary details.
+code links, optimizers, learning rates, training iterations, external repos,
+unavailable datasets, or missing supplementary details.
 
 If evidence is insufficient, still write the requested file with `Status: evidence_insufficient` and explain what source material is needed. Never silently omit a requested artifact.

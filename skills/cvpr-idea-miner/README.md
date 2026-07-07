@@ -8,7 +8,7 @@ Use it after `conference-cvpr` has produced normalized paper metadata or after `
 
 Preferred inputs:
 
-- `cvpr-paper-reader` outputs: `reading_note.md`, `method.md`, `experiments.md`, `limitations_and_ideas.md`
+- `cvpr-paper-reader` outputs: `reading_note.md`, `method.md`, `experiments.md`, `limitations_and_ideas.md`, and optional `reproduction_checklist.md`
 - `conference-cvpr` outputs: normalized JSON, conference reports, paper lists
 - User-provided paper metadata, abstracts, reading notes, or hypotheses
 
@@ -21,6 +21,13 @@ Evidence level controls the allowed depth. `cvpr-idea-miner` must read the
 - `fulltext_notes` / fulltext-derived reader notes: can support more complete gap analysis, idea cards, and experiment plans.
 
 Every idea card must label both `evidence source` and `evidence level`.
+
+When indexed, `reproduction_checklist.md` is an optional evidence source for
+`dependency_on_original_code`, `data_availability`,
+`implementation_difficulty`, `first_week_action`, `stop_condition`, and
+experiment-plan inputs, missing details, and risks. Its absence does not block
+idea mining. Do not fill evidence gaps with invented code links or
+hyperparameters.
 
 When collecting notes from a full reader root, historical `title_only`,
 `abstract_only`, and `fulltext` samples can be mixed. For single-paper fulltext
@@ -71,7 +78,9 @@ Collect local reading note paths into an index:
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
 ```
 
-The index includes `paper_id`, cleaned `title`, `evidence_level`, note root, and local note file paths. It scans local Markdown only.
+The index includes `paper_id`, cleaned `title`, `evidence_level`, note root, and
+local note file paths. If present, `files.reproduction_checklist` records the
+optional checklist path. It scans local Markdown only.
 
 If `input_count < 3`, topic maps must be labeled as single-paper or local topic
 maps based on selected notes. Do not describe them as a CVPR trend or CVPR 2026

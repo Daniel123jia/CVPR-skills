@@ -37,6 +37,11 @@ If scanning the whole reader directory, check for mixed `title_only`,
 `abstract_only`, and `fulltext` notes. If one paper appears at multiple evidence
 levels, prefer highest evidence before generating ideas.
 
+If `reader_notes_index.json` contains `files.reproduction_checklist`, treat it
+as optional evidence for feasibility fields and `experiment_plan.md` required
+inputs, missing details, and risks. Cite that path when used. Without it,
+continue idea mining from the remaining notes and preserve all evidence gaps.
+
 ## Topic Map Boundary
 
 If `input_count < 3`, write a single-paper or local topic map and say it is

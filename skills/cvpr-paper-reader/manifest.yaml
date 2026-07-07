@@ -63,6 +63,8 @@ outputs:
     limitations_and_ideas: limitations_and_ideas.md
     reading_note: reading_note.md
     reproduction_checklist: reproduction_checklist.md
+  optional_files:
+    - reproduction_checklist
 
 scope:
   includes:

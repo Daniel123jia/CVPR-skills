@@ -30,9 +30,14 @@ reading_note.md
 reproduction_checklist.md
 ```
 
-`reproduction_checklist.md` is optional. Use it when the user asks to reproduce
-the paper, wants to improve on it, or when fulltext evidence covers methods and
-experiments but code, supplement, or implementation details are missing.
+`reproduction_checklist.md` is an optional reader artifact. Use it when
+fulltext evidence is available and the user asks to reproduce or improve the
+paper, provided `paper_text.md` contains enough method and experiment setup.
+Record missing code, supplementary material, key hyperparameters, datasets, or
+training details as evidence gaps. Never invent a code link, optimizer,
+learning rate, training iterations, external repository, or unavailable
+dataset. When present, `cvpr-idea-miner` may use this artifact to ground
+feasibility assessment and experiment planning.
 
 For `experiments.md`, include a `Numeric Extraction Confidence` section when
 numbers come from parsed PDF text. Low-confidence table extraction must not

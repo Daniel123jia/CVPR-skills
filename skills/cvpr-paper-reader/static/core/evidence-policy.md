@@ -37,3 +37,5 @@ Strictly ground every claim in the provided material.
 - If numeric confidence is `medium`, use cautious language and ask for manual PDF verification.
 - If different metrics trade off, do not write "uniformly best" or equivalent simplified claims.
 - Reproduction assumptions must be separated from paper-backed facts. Do not invent code links, optimizer settings, learning rates, iterations, external repositories, or missing supplementary details.
+- Generate the optional `reproduction_checklist.md` only with sufficient `fulltext` method and experiment evidence and a reproduction or improvement intent.
+- Missing code, supplementary material, key hyperparameters, datasets, or training details are evidence gaps, not fields to infer. The checklist may ground `cvpr-idea-miner` feasibility and experiment-plan fields.

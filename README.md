@@ -88,6 +88,7 @@ Runtime outputs go under `data/`, `outputs/`, and `logs/`; they are intentionall
 - Experiment tables should include `Numeric Extraction Confidence` to avoid overclaiming from compressed PDF table text.
 - Single-paper topic maps are local analyses based on selected notes, not conference-wide CVPR trends.
 - Idea cards include feasibility, implementation difficulty, data availability, risk level, first-week action, and stop condition.
+- `reproduction_checklist.md` is an optional reader artifact. If present, `collect_reader_notes.py` records it and idea-miner may use it to ground feasibility and experiment planning; missing code or hyperparameters must not be invented.
 
 ## Clean clone validation
 
@@ -339,7 +340,7 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 - `fulltext_notes`：可以做较完整的方法组合和实验计划。
 - `user_hypothesis`：可以结合用户想法，但必须区分论文事实和用户设想。
 
-`collect_reader_notes.py` 会从 `reading_note.md`、`method.md`、`experiments.md` 和 `limitations_and_ideas.md` 建立本地索引，并记录：
+`collect_reader_notes.py` 会从 `reading_note.md`、`method.md`、`experiments.md`、`limitations_and_ideas.md` 和可选的 `reproduction_checklist.md` 建立本地索引，并记录：
 
 - `paper_id`
 - 清洗后的 `title`

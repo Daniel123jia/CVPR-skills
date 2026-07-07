@@ -1,0 +1,6 @@
+Use cvpr-idea-miner on a local reader notes index where one fulltext paper has
+reading_note.md, method.md, experiments.md, limitations_and_ideas.md, and
+reproduction_checklist.md. Explain how collection, idea-card feasibility, and
+experiment planning should use the optional checklist. Also explain behavior
+when another paper has no reproduction_checklist.md. Do not invent missing
+code, supplementary details, hyperparameters, or datasets.

@@ -44,6 +44,7 @@ class CollectReaderNotesFiltersTest(unittest.TestCase):
                 "method": "method.md",
                 "experiments": "experiments.md",
                 "limitations_and_ideas": "limitations_and_ideas.md",
+                "reproduction_checklist": "reproduction_checklist.md",
             }[key]
             lines = ["---", "title: {}".format(title)]
             if evidence_level:
@@ -129,6 +130,46 @@ class CollectReaderNotesFiltersTest(unittest.TestCase):
         self.assertEqual(papers_by_title["Equal Evidence Paper"]["paper_id"], "P_SAME_COMPLETE")
         self.assertIn("experiments", papers_by_title["Equal Evidence Paper"]["files"])
 
+    def test_reproduction_checklist_is_indexed_when_present(self):
+        self.write_note_dir(
+            "P_REPRO",
+            "Reproduction Paper",
+            "fulltext",
+            ["reading_note", "reproduction_checklist"],
+        )
+
+        index = self.run_collector("--paper-id", "P_REPRO")
+
+        paper = index["papers"][0]
+        self.assertIn("reproduction_checklist", paper["files"])
+        self.assertTrue(
+            paper["files"]["reproduction_checklist"].endswith("reproduction_checklist.md")
+        )
+        self.assertEqual(index["note_files"]["reproduction_checklist"], "reproduction_checklist.md")
+
+    def test_reproduction_checklist_is_optional_when_absent(self):
+        index = self.run_collector("--paper-id", "P_FULL")
+
+        self.assertEqual(index["paper_count"], 1)
+        self.assertNotIn("reproduction_checklist", index["papers"][0]["files"])
+
+    def test_dedupe_prefers_reproduction_checklist_when_evidence_and_core_files_tie(self):
+        core_files = ["reading_note", "method", "experiments", "limitations_and_ideas"]
+        self.write_note_dir("P_A_REPRO_SHORT", "Reproduction Tie", "fulltext", core_files)
+        self.write_note_dir(
+            "P_Z_REPRO_COMPLETE",
+            "Reproduction Tie",
+            "fulltext",
+            core_files + ["reproduction_checklist"],
+        )
+
+        index = self.run_collector("--dedupe-title", "prefer_highest_evidence")
+        papers_by_title = {paper["title"]: paper for paper in index["papers"]}
+
+        selected = papers_by_title["Reproduction Tie"]
+        self.assertEqual(selected["paper_id"], "P_Z_REPRO_COMPLETE")
+        self.assertIn("reproduction_checklist", selected["files"])
+
     def test_unknown_evidence_is_excluded_by_min_evidence_level_by_default(self):
         index = self.run_collector("--min-evidence-level", "title_only")
 
@@ -198,6 +239,33 @@ class CollectReaderNotesFiltersTest(unittest.TestCase):
         self.assertEqual(self.paper_ids(index), ["P_FULL"])
         self.assertEqual(index["filters"]["selected_root"], str(selected_root))
         self.assertEqual(index["filters"]["input_dir"], str(self.reader_root))
+        self.assertTrue(index["filters"]["inferred_input_dir"])
+
+    def test_selected_root_only_indexes_reproduction_checklist(self):
+        self.write_note_dir(
+            "P_SELECTED_REPRO",
+            "Selected Reproduction Paper",
+            "fulltext",
+            [
+                "reading_note",
+                "method",
+                "experiments",
+                "limitations_and_ideas",
+                "reproduction_checklist",
+            ],
+        )
+        selected_root = self.reader_root / "P_SELECTED_REPRO"
+        result, output = self.run_collector_raw(
+            "--selected-root",
+            str(selected_root),
+            "--min-evidence-level",
+            "fulltext",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        index = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(index["paper_count"], 1)
+        self.assertIn("reproduction_checklist", index["papers"][0]["files"])
         self.assertTrue(index["filters"]["inferred_input_dir"])
 
     def test_explicit_input_dir_plus_selected_root_does_not_mark_inferred(self):

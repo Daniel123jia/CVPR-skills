@@ -40,5 +40,7 @@ Strictly ground every claim in the provided CVPR material.
 - For `abstract_only`, keep ideas preliminary and do not add experiment details beyond the abstract.
 - For `reader_notes`, preserve the note-level evidence boundary; title-only notes remain title-only even after indexing.
 - For `fulltext_notes`, use the richer evidence only when the notes include fulltext-derived method, experiment, or limitation content.
+- An indexed `reproduction_checklist.md` is an optional evidence source for feasibility and experiment planning. Cite it when it supports a field; its absence does not lower or block otherwise valid idea mining.
+- Do not infer missing code links, optimizers, learning rates, iterations, datasets, or supplementary details from the checklist or from silence. Keep them as evidence gaps.
 - For `user_hypothesis`, label user ideas as hypotheses before turning them into experiment plans.
 - If `input_count < 3`, topic maps are single-paper/local analyses based on selected notes; do not describe them as CVPR-wide trends.

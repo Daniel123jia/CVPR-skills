@@ -39,6 +39,16 @@ Use Chinese for the main content unless the user asks otherwise.
 - `idea_cards.md`: structured research ideas ready for selection and iteration.
 - `experiment_plan.md`: datasets, baselines, metrics, first runnable experiment, and validation milestones.
 
+## Optional Reproduction Evidence
+
+When `reader_notes_index.json` includes `files.reproduction_checklist`, it may
+be used as an evidence source for idea-card feasibility fields and for
+`experiment_plan.md` required inputs, missing details, and risks. Any field
+grounded by it must cite the checklist path as its `evidence source`. If the
+checklist is absent, idea mining continues from the other indexed notes.
+Missing code links, hyperparameters, supplementary details, or unavailable
+datasets must remain evidence gaps.
+
 ## Topic Map Boundary
 
 If `Input count` is less than 3, `topic_map.md` must label itself as a
