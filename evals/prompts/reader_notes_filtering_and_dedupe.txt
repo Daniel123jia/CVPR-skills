@@ -5,3 +5,5 @@ The directory contains two notes with the same cleaned title:
 - P2 evidence_level: fulltext with reading_note.md, method.md, experiments.md, and limitations_and_ideas.md
 
 Ask the skill to build reader_notes_index.json for idea mining without mixing historical title_only, abstract_only, and fulltext validation samples.
+
+For a single-paper fulltext validation case, prefer the selected-root-only command instead of requiring --input-dir.

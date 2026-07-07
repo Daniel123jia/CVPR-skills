@@ -72,12 +72,14 @@ historical title-only, abstract-only, and fulltext samples:
 
 ```bash
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
-  --input-dir outputs/computer_vision/cvpr/reader \
   --selected-root outputs/computer_vision/cvpr/reader/directfisheye_gs_fulltext_test \
   --min-evidence-level fulltext \
   --dedupe-title prefer_highest_evidence \
   --output outputs/computer_vision/cvpr/ideas/directfisheye_gs_fulltext_test/reader_notes_index.json
 ```
+
+`--selected-root` automatically infers the parent `input_dir`. Use
+`--input-dir` for whole-reader-root scans; passing both flags remains supported.
 
 If the same paper appears at multiple evidence levels, prefer
 `--dedupe-title prefer_highest_evidence`. If `input_count < 3`, topic maps must

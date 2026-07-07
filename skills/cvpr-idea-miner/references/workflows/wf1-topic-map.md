@@ -6,6 +6,7 @@
 - Accept `title_only`, `title_abstract`, `reader_notes`, `fulltext_notes`, or `user_hypothesis`.
 - If only titles are available, mark the output as `preliminary`.
 - If input_count < 3, this is a single-paper or local topic map, not a CVPR trend.
+- For one reader-note folder, prefer a selected-root-only `collect_reader_notes.py` command; use `--input-dir` for whole-reader-root scans.
 
 ## 执行步骤
 

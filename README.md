@@ -70,18 +70,20 @@ Index local paper-reader notes before idea mining:
 
 ```bash
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
-  --input-dir outputs/computer_vision/cvpr/reader \
   --selected-root outputs/computer_vision/cvpr/reader/{paper_id} \
   --min-evidence-level fulltext \
   --dedupe-title prefer_highest_evidence \
   --output outputs/computer_vision/cvpr/ideas/{paper_id}/reader_notes_index.json
 ```
 
+For whole-reader-root scans, use `--input-dir outputs/computer_vision/cvpr/reader`. For one paper or one reader subdirectory, prefer `--selected-root`; it automatically infers `input_dir`. Passing both `--input-dir` and `--selected-root` is still supported.
+
 Runtime outputs go under `data/`, `outputs/`, and `logs/`; they are intentionally ignored by git.
 
 ## Quality Guards
 
 - Reader notes can be filtered by `paper_id`, `evidence_level`, and `min_evidence_level`.
+- Single-paper fulltext validation can use a selected-root-only command; `--input-dir` is required only for whole-reader-root scans.
 - Duplicate titles can use `--dedupe-title prefer_highest_evidence` so fulltext notes win over title-only or abstract-only notes.
 - Experiment tables should include `Numeric Extraction Confidence` to avoid overclaiming from compressed PDF table text.
 - Single-paper topic maps are local analyses based on selected notes, not conference-wide CVPR trends.

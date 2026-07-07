@@ -62,7 +62,11 @@ def parse_args(argv):
             "No network, PDF download, or OCR is performed."
         )
     )
-    parser.add_argument("--input-dir", required=True, help="Directory containing per-paper reader outputs.")
+    parser.add_argument(
+        "--input-dir",
+        default=None,
+        help="Directory containing per-paper reader outputs; required unless --selected-root is provided.",
+    )
     parser.add_argument("--output", required=True, help="Path to write reader_notes_index.json.")
     parser.add_argument(
         "--paper-id",
@@ -324,16 +328,26 @@ def write_index(output_path, input_dir, papers, filters):
 
 def main(argv=None):
     args = parse_args(argv or sys.argv[1:])
-    input_dir = Path(args.input_dir).expanduser()
     output_path = Path(args.output).expanduser()
     selected_root = Path(args.selected_root).expanduser() if args.selected_root else None
+    inferred_input_dir = False
 
-    if not input_dir.is_dir():
-        print("Error: input directory does not exist: {}".format(input_dir), file=sys.stderr)
+    if not args.input_dir and not selected_root:
+        print("Error: Either --input-dir or --selected-root must be provided.", file=sys.stderr)
         return 2
 
     if selected_root and not selected_root.is_dir():
-        print("Error: selected root does not exist: {}".format(selected_root), file=sys.stderr)
+        print("Error: selected_root does not exist: {}".format(selected_root), file=sys.stderr)
+        return 2
+
+    if args.input_dir:
+        input_dir = Path(args.input_dir).expanduser()
+    else:
+        input_dir = selected_root.parent
+        inferred_input_dir = True
+
+    if not input_dir.is_dir():
+        print("Error: input directory does not exist: {}".format(input_dir), file=sys.stderr)
         return 2
 
     filters = {
@@ -343,6 +357,8 @@ def main(argv=None):
         "include_unknown_evidence": args.include_unknown_evidence,
         "dedupe_title": args.dedupe_title,
         "selected_root": args.selected_root,
+        "input_dir": str(input_dir),
+        "inferred_input_dir": inferred_input_dir,
     }
 
     papers = collect_notes(input_dir, selected_root=selected_root)

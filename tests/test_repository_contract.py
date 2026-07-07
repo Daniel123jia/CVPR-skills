@@ -138,6 +138,7 @@ class RepositoryContractTest(unittest.TestCase):
             "--selected-root",
         ]:
             self.assertIn(flag, result.stdout)
+        self.assertIn("required unless --selected-root is provided", result.stdout)
 
     def test_v143_quality_docs_and_evals_exist(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
@@ -155,6 +156,8 @@ class RepositoryContractTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         self.assertIn("## Quality Guards", readme)
+        self.assertIn("--selected-root outputs/computer_vision/cvpr/reader/{paper_id}", readme)
+        self.assertIn("--input-dir outputs/computer_vision/cvpr/reader", readme)
         self.assertIn("Numeric Extraction Confidence", paper_reader_contract)
         self.assertIn("reproduction_checklist.md", paper_reader_contract)
         self.assertIn("reproduction_checklist.md", paper_reader_readme)

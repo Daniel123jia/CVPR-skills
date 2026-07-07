@@ -59,6 +59,8 @@ Use `cvpr-idea-miner` after one or more `cvpr-paper-reader` notes exist. First c
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
 ```
 
+For a single fulltext reader-note folder, prefer `--selected-root outputs/computer_vision/cvpr/reader/{paper_id}` with `--min-evidence-level fulltext` and `--dedupe-title prefer_highest_evidence`; `--selected-root` automatically infers the parent reader root. Use `--input-dir` for whole-reader-root scans.
+
 Then ask `cvpr-idea-miner` to read the `reader_notes_index.json` plus the referenced reader notes and generate idea cards. Recommended output:
 
 ```text

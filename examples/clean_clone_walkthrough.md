@@ -80,11 +80,12 @@ Use `cvpr-idea-miner` after reader notes exist:
 
 ```bash
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
-  --input-dir outputs/computer_vision/cvpr/reader \
   --selected-root outputs/computer_vision/cvpr/reader/{paper_id} \
   --min-evidence-level fulltext \
   --dedupe-title prefer_highest_evidence \
   --output outputs/computer_vision/cvpr/ideas/{paper_id}/reader_notes_index.json
 ```
+
+For whole-reader-root scans, pass `--input-dir outputs/computer_vision/cvpr/reader`. For a single paper folder, `--selected-root` automatically infers the parent reader root.
 
 Then generate topic maps, gap analysis, idea cards, and experiment plans from the indexed notes. Keep paper facts separate from agent hypotheses, and keep generated outputs out of git.

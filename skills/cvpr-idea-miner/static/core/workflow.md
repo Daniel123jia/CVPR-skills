@@ -23,12 +23,15 @@ prefer:
 
 ```bash
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
-  --input-dir outputs/computer_vision/cvpr/reader \
   --selected-root outputs/computer_vision/cvpr/reader/directfisheye_gs_fulltext_test \
   --min-evidence-level fulltext \
   --dedupe-title prefer_highest_evidence \
   --output outputs/computer_vision/cvpr/ideas/directfisheye_gs_fulltext_test/reader_notes_index.json
 ```
+
+`--selected-root` automatically infers the parent `input_dir`. Use `--input-dir`
+for whole-reader-root scans. Passing both `--input-dir` and `--selected-root`
+is still supported.
 
 If scanning the whole reader directory, check for mixed `title_only`,
 `abstract_only`, and `fulltext` notes. If one paper appears at multiple evidence

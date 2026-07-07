@@ -8,6 +8,7 @@
 - `title_only` supports only direction-level preliminary ideas.
 - `abstract_only` supports abstract-level preliminary ideas, but not experiment details.
 - `reader_notes` or `fulltext_notes` are required for detailed proposed method and experiment fields.
+- For one fulltext reader-note folder, prefer a selected-root-only note index; use `--input-dir` for whole-reader-root scans.
 
 ## 执行步骤
 

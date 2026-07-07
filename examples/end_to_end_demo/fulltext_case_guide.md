@@ -53,12 +53,13 @@ Collect the reader notes:
 
 ```bash
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
-  --input-dir outputs/computer_vision/cvpr/reader \
   --selected-root outputs/computer_vision/cvpr/reader/{paper_id} \
   --min-evidence-level fulltext \
   --dedupe-title prefer_highest_evidence \
   --output outputs/computer_vision/cvpr/ideas/{paper_id}/reader_notes_index.json
 ```
+
+For whole-reader-root scans, use `--input-dir outputs/computer_vision/cvpr/reader`. For a single fulltext case, prefer `--selected-root`; it automatically infers the parent `input_dir`. Passing both flags remains supported.
 
 Then use `cvpr-idea-miner` to generate local idea mining artifacts such as:
 

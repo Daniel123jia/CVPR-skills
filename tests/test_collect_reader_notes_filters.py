@@ -66,6 +66,15 @@ class CollectReaderNotesFiltersTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(output.read_text(encoding="utf-8"))
 
+    def run_collector_raw(self, *args):
+        output = Path(self.tmp.name) / "reader_notes_index_raw.json"
+        cmd = [sys.executable, str(SCRIPT)]
+        cmd.extend(args)
+        if "--output" not in args:
+            cmd.extend(["--output", str(output)])
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        return result, output
+
     def paper_ids(self, index):
         return [paper["paper_id"] for paper in index["papers"]]
 
@@ -152,6 +161,8 @@ class CollectReaderNotesFiltersTest(unittest.TestCase):
                 "include_unknown_evidence": True,
                 "dedupe_title": "prefer_highest_evidence",
                 "selected_root": None,
+                "input_dir": str(self.reader_root),
+                "inferred_input_dir": False,
             },
         )
 
@@ -161,6 +172,61 @@ class CollectReaderNotesFiltersTest(unittest.TestCase):
 
         self.assertEqual(self.paper_ids(index), ["P_FULL"])
         self.assertEqual(index["filters"]["selected_root"], str(selected_root))
+        self.assertEqual(index["filters"]["input_dir"], str(self.reader_root))
+        self.assertFalse(index["filters"]["inferred_input_dir"])
+
+    def test_missing_input_dir_and_selected_root_fails_with_friendly_error(self):
+        result, _ = self.run_collector_raw()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Either --input-dir or --selected-root must be provided", result.stderr)
+
+    def test_selected_root_only_infers_input_dir_from_parent(self):
+        selected_root = self.reader_root / "P_FULL"
+        result, output = self.run_collector_raw(
+            "--selected-root",
+            str(selected_root),
+            "--min-evidence-level",
+            "fulltext",
+            "--dedupe-title",
+            "prefer_highest_evidence",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        index = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(index["paper_count"], 1)
+        self.assertEqual(self.paper_ids(index), ["P_FULL"])
+        self.assertEqual(index["filters"]["selected_root"], str(selected_root))
+        self.assertEqual(index["filters"]["input_dir"], str(self.reader_root))
+        self.assertTrue(index["filters"]["inferred_input_dir"])
+
+    def test_explicit_input_dir_plus_selected_root_does_not_mark_inferred(self):
+        selected_root = self.reader_root / "P_FULL"
+        index = self.run_collector("--selected-root", str(selected_root))
+
+        self.assertEqual(index["paper_count"], 1)
+        self.assertEqual(index["filters"]["input_dir"], str(self.reader_root))
+        self.assertFalse(index["filters"]["inferred_input_dir"])
+
+    def test_missing_selected_root_fails_with_clear_error(self):
+        missing_root = self.reader_root / "DOES_NOT_EXIST"
+        result, _ = self.run_collector_raw("--selected-root", str(missing_root))
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("selected_root does not exist", result.stderr)
+
+    def test_help_explains_input_dir_condition(self):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--help"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--input-dir", result.stdout)
+        self.assertIn("required unless --selected-root is provided", result.stdout)
+        self.assertIn("--selected-root", result.stdout)
 
 
 if __name__ == "__main__":

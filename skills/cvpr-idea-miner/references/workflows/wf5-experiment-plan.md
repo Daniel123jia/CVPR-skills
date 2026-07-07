@@ -5,6 +5,7 @@
 - Requires selected idea cards.
 - Best with `reader_notes` or `fulltext_notes` that mention datasets, metrics, baselines, implementation constraints, or limitations.
 - If only titles or abstracts are available, produce a preliminary plan template and mark missing evidence.
+- For one selected fulltext paper, prefer a selected-root-only reader notes index so historical title-only or abstract-only notes do not mix into the plan.
 
 ## 执行步骤
 
