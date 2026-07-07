@@ -17,7 +17,7 @@ For a PDF represented in local metadata, preview the exact selection first:
 
 ```bash
 python skills/conference-cvpr/scripts/download_cvf_pdf.py \
-  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --metadata outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json \
   --paper-id CVPR2026_000002 \
   --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
   --dry-run

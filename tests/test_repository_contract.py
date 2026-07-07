@@ -260,6 +260,40 @@ class RepositoryContractTest(unittest.TestCase):
         ]:
             self.assertIn(phrase, expected_text)
 
+    def test_v151_root_readme_documentation_polish_contract(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
+
+        required_phrases = [
+            "CVPR-skills",
+            "conference-cvpr",
+            "cvpr-paper-reader",
+            "cvpr-idea-miner",
+            "optional CVF PDF download",
+            "Validated Cases",
+            "Evidence Levels",
+            "Quality Guards",
+            "Scope and Non-goals",
+            "outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json",
+            "no automatic full-conference PDF download",
+            "reproduction_checklist.md",
+            "Numeric Extraction Confidence",
+            "paper_id",
+            "title",
+            "pdf_url",
+            "local PDF",
+            "Runtime artifacts",
+            "DirectFisheye-GS",
+            "SAM3DBody",
+            "91 tests OK",
+        ]
+        for phrase in required_phrases:
+            self.assertIn(phrase, readme)
+
+        self.assertNotIn(
+            "outputs/computer_vision/cvpr/normalized/cvpr_2026_papers.json",
+            readme,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

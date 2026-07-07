@@ -1,88 +1,162 @@
 # CVPR-skills
 
-一个面向 CVPR main conference papers 的 Codex / Claude Code Agent Skill 集合，用于从 CVF Open Access 采集、清洗、导出、完整性检查、可选的显式单篇 PDF 下载、会议级初步分析、论文精读与研究灵感挖掘。
+[![Test](https://github.com/Daniel123jia/CVPR-skills/actions/workflows/test.yml/badge.svg)](https://github.com/Daniel123jia/CVPR-skills/actions/workflows/test.yml)
 
-当前仓库只做 CVPR-skills，不扩展其他会议。当前包含三个 skill：`conference-cvpr`、`cvpr-paper-reader` 和 `cvpr-idea-miner`。v1 专注 CVPR main conference papers，不新增其他会议 skill，不采集 workshops，不调用外部 enrichment API，不批量下载 PDF。
+Agent Skills for CVPR paper collection, fulltext reading, and research idea mining.
 
-## At A Glance
+CVPR-skills 是一个围绕 CVPR 论文的 Agent Skill 仓库，覆盖从 CVF Open Access 元数据采集、可选 PDF 下载、全文阅读、实验整理，到研究 idea 挖掘和复现计划生成的完整工作流。
 
-```text
-conference-cvpr       ->  cvpr-paper-reader       ->  cvpr-idea-miner
-采集 / 清洗 / 导出 / 检查   单篇阅读笔记与证据分级      topic map / gap / idea cards
+一个面向 CVPR main conference papers 的 Codex / Claude Code Agent Skill repository。当前仓库只做 CVPR-skills，当前包含三个 skills：`conference-cvpr`、`cvpr-paper-reader`、`cvpr-idea-miner`。
+
+```mermaid
+flowchart LR
+    A["CVPR year"] --> B["conference-cvpr<br/>metadata collection"]
+    B --> C["JSON / SQLite / Excel / Markdown<br/>completeness report"]
+    C --> D["optional CVF PDF download<br/>paper_id / title / pdf_url"]
+    D --> E["local PDF"]
+    E --> F["cvpr-paper-reader<br/>paper_text.md + reader notes"]
+    F --> G["cvpr-idea-miner<br/>topic map + gaps + idea cards"]
+    G --> H["first runnable experiment"]
 ```
 
-**v1.5 准备状态**
+## What Is CVPR-skills?
 
-| 能力 | 状态 |
-| --- | --- |
-| CVPR 2026 小样本采集 | 已通过本地真实样本验收 |
-| `title_only` reader / idea mining | 已通过本地真实样本验收 |
-| `abstract_only` reader note | 已通过 CVF 真实摘要验收 |
-| `fulltext` reader / idea mining | 已通过本地 fixture 验收；可读取用户已有或显式下载的单篇 CVF PDF |
-| optional PDF download | 按 `paper_id`、title 或 CVF `pdf_url` 显式触发；默认不下载 |
-| 安全边界 | 不新增其他会议、不接外部 enrichment API、不批量下载整届 PDF、不做 OCR |
+CVPR-skills helps users move from:
+
+```text
+CVPR metadata -> paper PDF -> structured reading notes -> research gaps -> idea cards -> first runnable experiment
+```
+
+It is not a general crawler, not a universal paper database, and not a tool for silently downloading every PDF from a conference. It is a CVPR paper skills repository for Codex / Claude Code / Agent workflows, with an evidence-aware paper workflow as the core design goal.
+
+The repository focuses on explicit, inspectable transitions:
+
+- CVF Open Access metadata collection for CVPR main conference papers.
+- Optional CVF PDF download only when the user selects one paper by `paper_id`, `title`, or `pdf_url`.
+- Local/user-provided PDF reading through extracted `paper_text.md`.
+- Evidence-bounded notes, topic maps, research gaps, idea cards, and experiment plans.
+
+> No automatic full-conference PDF download. Also: no automatic full-conference PDF download.
+
+## What Can It Do?
+
+| Input | Skill used | Evidence level | Outputs | Best for |
+| --- | --- | --- | --- | --- |
+| CVPR year | `conference-cvpr` | metadata | JSON / SQLite / Excel / Markdown / completeness report | Building a CVPR paper index |
+| `paper_id` / `title` | `conference-cvpr` + optional downloader | metadata / `pdf_url` | Matched metadata / dry-run download plan / optional PDF | Locating one paper and preparing fulltext reading |
+| CVF `pdf_url` | `conference-cvpr` + optional downloader | explicit URL | Dry-run validation / optional PDF / `.pdf.json` sidecar / SHA-256 | Starting from a known CVF Open Access PDF URL |
+| local PDF | `cvpr-paper-reader` | fulltext | `paper_text.md` / `reading_note.md` / `method.md` / `experiments.md` / `limitations_and_ideas.md` / optional `reproduction_checklist.md` | Reading and understanding one paper |
+| reader notes | `cvpr-idea-miner` | `reader_notes` / `fulltext_notes` | `topic_map.md` / `gap_analysis.md` / `idea_cards.md` / `experiment_plan.md` | Finding research ideas and experiment plans |
 
 ## Skill Navigator
 
-`skills/conference-cvpr/`、`skills/cvpr-paper-reader/` 和 `skills/cvpr-idea-miner/` 是当前可触发 skill；`skills/_shared/` 只存放共享 schema、规则和模板，不作为独立 skill 使用。
-
-| Skill | 边界 | 典型用途 |
-| --- | --- | --- |
-| `conference-cvpr` | CVPR 数据与显式下载入口 | 整届 metadata 采集、清洗、导出、检查，以及指定论文的可选 CVF PDF 下载 |
-| `cvpr-paper-reader` | 单篇论文精读 | 论文精读、方法提取、实验表、中文阅读笔记、局限性分析 |
-| `cvpr-idea-miner` | 多篇论文/阅读笔记的研究灵感挖掘 | 方向归纳、研究空白发现、方法组合、idea cards、实验计划 |
-
-| 场景 | 你可以这样说 | Agent 路线 | 推荐入口 |
+| Skill | Role | What it does | Does not do |
 | --- | --- | --- | --- |
-| 一键完整流程 | “获取 CVPR 2026 论文并导出结果” | 采集 → 清洗 → 导出 → 检查 | `python skills/conference-cvpr/scripts/run_pipeline.py --year 2026` |
-| 快速采集 | “只采集 CVPR 论文列表” | `collect-cvf` | `collect_cvpr.py --year 2026` |
-| 补充摘要 | “给 CVPR 数据补摘要，分批慢一点” | `collect-cvf` with page enrichment | `run_pipeline.py --year 2026 --enrich-pages --limit 100 --sleep 0.5 --resume` |
-| 导出文件 | “导出 CVPR 论文 Excel / SQLite / Markdown / JSON” | `export-artifacts` | `export_cvpr.py --year 2026` |
-| 质量检查 | “检查缺失字段和重复论文” | `completeness-check` | `check_completeness.py --year 2026` |
-| 初步分析 | “分析 CVPR 研究方向” | `research-analysis` with coverage gate | 读取 normalized JSON 或 SQLite 后生成 Markdown 分析 |
-| 下载指定 PDF | “下载 paper_id 为 CVPR2026_000002 的论文” | `download-cvf-pdf` | `download_cvf_pdf.py ... --dry-run` |
-| 单篇论文精读 | “精读这篇 CVPR 论文” | `paper-summary -> method-extraction -> experiment-table -> limitations-and-ideas -> reading-note` | `skills/cvpr-paper-reader/` |
-| 方法/实验提取 | “提取这篇论文的方法 / 整理实验设置和结果” | `method-extraction` / `experiment-table` | 提供全文、PDF 解析文本或论文片段 |
-| 摘要级阅读 | “总结这篇 CVPR 论文” + title/abstract | `paper-summary` preliminary | 只能输出 preliminary summary |
-| 多篇论文找灵感 | “从这些 CVPR 论文找研究灵感” | `topic-map -> gap-analysis -> method-recombination -> idea-cards -> experiment-plan` | `skills/cvpr-idea-miner/` |
-| 阅读笔记生成 idea | “根据这些阅读笔记生成 idea” | `idea-cards` with `reader_notes` evidence | 读取 `cvpr-paper-reader` 输出 |
-| 方法组合 | “把这些 CVPR 方法模块组合一下” | `method-recombination` | 必须标记 evidence source |
+| `conference-cvpr` | CVPR main conference metadata workflow | Collects from CVF Open Access, normalizes records, exports artifacts, checks completeness, and supports optional explicit PDF download in v1.5 | Does not read papers, download code repositories, or batch-download all PDFs by default |
+| `cvpr-paper-reader` | Single-paper or small-batch reading workflow | Extracts local PDF text, applies evidence levels, creates reader artifacts, adds `Numeric Extraction Confidence`, and can produce `reproduction_checklist.md` | Does not invent missing code links, supplement details, datasets, hyperparameters, or results |
+| `cvpr-idea-miner` | Multi-note idea mining workflow | Collects reader notes with `--selected-root`, filters by evidence, deduplicates titles, and supports 多篇论文/阅读笔记的研究灵感挖掘 through local topic maps, gap analysis, idea cards, and experiment plans | Does not treat one paper as a CVPR trend or convert hypotheses into paper facts |
 
-**边界很重要：** 只支持 CVPR main conference papers；不采集 workshops，不新增其他会议，不调用外部 enrichment API。PDF 下载是 optional and explicit，只接受 CVF Open Access URL。No automatic full-conference PDF download。`conference-cvpr` 不负责单篇精读，`cvpr-paper-reader` 不负责整届会议采集，`cvpr-idea-miner` 不负责整届论文采集或 PDF 下载。
+Common agent routes:
 
-推荐的单篇全文路径保持分步执行：`metadata match -> optional PDF download -> extract text -> paper-reader -> idea-miner`。下载只补齐本地全文输入，不改变 reader 的证据规则。
+| Scenario | User intent | Agent route | Recommended entry |
+| --- | --- | --- | --- |
+| 一键完整流程 | "Get CVPR 2026 papers and export results" | 采集 → 清洗 → 导出 → 检查 | `python skills/conference-cvpr/scripts/run_pipeline.py --year 2026` |
+| Quick sample | "Run a small CVPR sample" | collect -> normalize -> export -> check | `python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --limit 5` |
+| One PDF by paper id | "Download paper_id CVPR2026_000002" | metadata match -> optional PDF download | `download_cvf_pdf.py ... --paper-id CVPR2026_000002 --dry-run` |
+| One PDF by title | "Find and prepare this paper by title" | title match -> dry run -> optional PDF | `download_cvf_pdf.py ... --title "..." --dry-run` |
+| Single paper reading | "Read this CVPR paper" | extract text -> reader notes | `skills/cvpr-paper-reader/` |
+| Multi-note ideas | "从这些 CVPR 论文找研究灵感" | topic-map -> gap-analysis -> idea-cards -> experiment-plan | `skills/cvpr-idea-miner/` |
 
-## Quick Start
+只支持 CVPR main conference papers. It does not collect workshops, add other conference skills, call external enrichment APIs, run GitHub Search, or download code repositories. The recommended fulltext route is:
 
-Recommended Python: 3.10 or 3.11. CI currently validates Python 3.11.
-
-```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+```text
+metadata match -> optional PDF download -> extract text -> paper-reader -> idea-miner
 ```
 
-PDF text extraction uses `pypdf`. The dependency is pinned to `pypdf>=3.17.4,<4.0` to keep a stable compatible range and avoid old-environment incompatibilities.
+## End-to-End Workflows
 
-Run a small CVPR collection sample:
+### Workflow A: From CVPR year to metadata
 
 ```bash
 python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --limit 5
 ```
 
-Optional PDF download for one selected metadata record:
+Typical local output paths:
+
+```text
+data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json
+outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json
+outputs/computer_vision/cvpr/2026/
+```
+
+The `outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json` export is the recommended metadata input for the optional PDF downloader.
+
+高级用法: run each conference step separately.
+
+```bash
+python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026
+python skills/conference-cvpr/scripts/normalize_cvpr.py --year 2026
+python skills/conference-cvpr/scripts/export_cvpr.py --year 2026
+python skills/conference-cvpr/scripts/check_completeness.py --year 2026
+```
+
+### Workflow B: From `paper_id` / `title` / `pdf_url` to optional CVF PDF download
+
+The downloader is optional, explicit, and dry-run first. It accepts only CVF Open Access PDF URLs from `openaccess.thecvf.com`. It does not perform full-conference PDF download by default and does not download code repositories.
+
+By `paper_id`:
 
 ```bash
 python skills/conference-cvpr/scripts/download_cvf_pdf.py \
-  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
+  --metadata outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json \
   --paper-id CVPR2026_000002 \
   --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
   --dry-run
 ```
 
-Remove `--dry-run` only after checking the selected URL and path. PDFs and `.pdf.json` sidecars are runtime artifacts and must not be committed.
+By title:
 
-Index local paper-reader notes before idea mining:
+```bash
+python skills/conference-cvpr/scripts/download_cvf_pdf.py \
+  --metadata outputs/computer_vision/cvpr/2026/cvpr_2026_papers.json \
+  --title "DirectFisheye-GS: Enabling Native Fisheye Input in Gaussian Splatting with Cross-View Joint Optimization" \
+  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
+  --dry-run
+```
+
+By direct CVF `pdf_url`:
+
+```bash
+python skills/conference-cvpr/scripts/download_cvf_pdf.py \
+  --pdf-url https://openaccess.thecvf.com/content/CVPR2026/papers/example.pdf \
+  --paper-id CVPR2026_000002 \
+  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
+  --dry-run
+```
+
+Remove `--dry-run` only after checking the selected URL and output path. The actual PDF, sidecar JSON, checksums, and logs are runtime artifacts.
+
+### Workflow C: From local PDF to fulltext reading and ideas
+
+Start with a local PDF that the user already has, or one selected through the optional CVF PDF download workflow.
+
+```bash
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py \
+  --pdf /path/to/local_cvpr_paper.pdf \
+  --output outputs/computer_vision/cvpr/reader/example_paper/paper_text.md
+```
+
+Then use `cvpr-paper-reader` to generate:
+
+```text
+outputs/computer_vision/cvpr/reader/example_paper/reading_note.md
+outputs/computer_vision/cvpr/reader/example_paper/method.md
+outputs/computer_vision/cvpr/reader/example_paper/experiments.md
+outputs/computer_vision/cvpr/reader/example_paper/limitations_and_ideas.md
+outputs/computer_vision/cvpr/reader/example_paper/reproduction_checklist.md
+```
+
+Index selected notes before idea mining:
 
 ```bash
 python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
@@ -92,44 +166,177 @@ python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
   --output outputs/computer_vision/cvpr/ideas/{paper_id}/reader_notes_index.json
 ```
 
-For whole-reader-root scans, use `--input-dir outputs/computer_vision/cvpr/reader`. For one paper or one reader subdirectory, prefer `--selected-root`; it automatically infers `input_dir`. Passing both `--input-dir` and `--selected-root` is still supported.
+For whole-reader-root scans, use:
 
-Runtime outputs go under `data/`, `outputs/`, and `logs/`; they are intentionally ignored by git.
+```bash
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py \
+  --input-dir outputs/computer_vision/cvpr/reader \
+  --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
+```
+
+Then use `cvpr-idea-miner` to generate:
+
+```text
+outputs/computer_vision/cvpr/ideas/{paper_id}/topic_map.md
+outputs/computer_vision/cvpr/ideas/{paper_id}/gap_analysis.md
+outputs/computer_vision/cvpr/ideas/{paper_id}/idea_cards.md
+outputs/computer_vision/cvpr/ideas/{paper_id}/experiment_plan.md
+```
+
+## Evidence Levels
+
+Evidence levels define what the agent may claim.
+
+| Evidence level | Allowed claims | Hard boundary |
+| --- | --- | --- |
+| `title_only` | Coarse topic guesses and preliminary routing | No method details, experiment results, datasets, ablations, or implementation claims |
+| `abstract_only` | Preliminary summary based on title and abstract | No detailed experimental claims, missing baselines, numeric results, or code claims |
+| `fulltext` | Method, experiments, limitations, and reproduction notes extracted from `paper_text.md` | Still constrained by the provided `paper_text.md`; missing content remains an evidence gap |
+| `reader_notes` | Gap analysis and ideas based on generated reader artifacts | Must inherit the reader notes' evidence boundaries |
+| `fulltext_notes` | Richer method recombination and experiment planning from fulltext reader outputs | Must not promote hypotheses into paper facts |
+| `user_hypothesis` | User or agent proposals clearly labeled as hypotheses | Must be separated from paper evidence |
+
+If evidence is missing, write `evidence gap`. Ideas must be marked as `agent hypothesis`. A single-paper topic map is a local analysis, not a CVPR trend.
 
 ## Quality Guards
 
-- Reader notes can be filtered by `paper_id`, `evidence_level`, and `min_evidence_level`.
-- Single-paper fulltext validation can use a selected-root-only command; `--input-dir` is required only for whole-reader-root scans.
-- Duplicate titles can use `--dedupe-title prefer_highest_evidence` so fulltext notes win over title-only or abstract-only notes.
-- Experiment tables should include `Numeric Extraction Confidence` to avoid overclaiming from compressed PDF table text.
-- Single-paper topic maps are local analyses based on selected notes, not conference-wide CVPR trends.
-- Idea cards include feasibility, implementation difficulty, data availability, risk level, first-week action, and stop condition.
-- `reproduction_checklist.md` is an optional reader artifact. If present, `collect_reader_notes.py` records it and idea-miner may use it to ground feasibility and experiment planning; missing code or hyperparameters must not be invented.
+- No hallucinated code links.
+- No hallucinated citation counts.
+- No hallucinated leaderboard.
+- No unseen datasets, baselines, ablations, or experiment results.
+- `Numeric Extraction Confidence` is required where PDF table text may be compressed or ambiguous.
+- `--selected-root` supports selected-root-only note collection for one paper or one local case.
+- `--dedupe-title prefer_highest_evidence` lets higher-evidence notes override title-only or abstract-only duplicates.
+- `reproduction_checklist.md` is an optional evidence source for feasibility and experiment planning.
+- `reproduction_checklist.md` is an optional reader artifact.
+- Single-paper topic maps must be labeled `single-paper` / `local topic map`, not CVPR trends.
+- Missing code, supplementary details, hyperparameters, or datasets must be recorded as evidence gaps.
 
-## Clean clone validation
+## Validated Cases
 
-After a fresh clone, install dependencies and run only local checks:
+These cases were validated as local ignored outputs and are not committed to the repository.
+
+| Case | Input | Evidence level | Reader outputs | Idea outputs | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| DirectFisheye-GS | local CVPR 2026 PDF | fulltext | 4 reader files | 4 idea files | pass |
+| SAM3DBody | local CVPR PDF | fulltext | 4 reader files + reproduction checklist | 4 idea files | pass |
+
+Manual validation reports for these cases showed no detected hallucination, evidence-boundary violation, forced table conclusion, or single-paper trend overclaim. This is validation for these cases, not a guarantee that every future run is hallucination-free.
+
+Additional verified project status:
+
+- DirectFisheye-GS fulltext loop: pass.
+- SAM3DBody fulltext loop: pass.
+- v1.4.4 selected-root-only workflow: verified.
+- v1.5 optional CVF PDF download workflow: dry-run, safe URL restriction, sidecar JSON, and SHA-256 support.
+- 91 tests OK on Python 3.11 before this v1.5.1 README contract; this polish adds a README documentation contract test.
+- GitHub Actions enabled.
+
+## Installation
+
+Recommended Python: 3.10 or 3.11. CI validates Python 3.11.
 
 ```bash
+git clone https://github.com/Daniel123jia/CVPR-skills.git
+cd CVPR-skills
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python -m unittest discover -s tests
-python skills/conference-cvpr/scripts/run_pipeline.py --help
-python skills/conference-cvpr/scripts/download_cvf_pdf.py --help
-python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
-python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
 ```
 
-This validation does not run real CVF collection, call external enrichment APIs, or perform PDF downloads.
+`pypdf` is pinned to a stable compatible range:
+
+```text
+pypdf>=3.17.4,<4.0
+```
+
+`data/`, `outputs/`, `logs/`, PDFs, Excel files, SQLite files, and other generated artifacts are ignored runtime outputs.
+
+## Repository Layout
+
+```text
+CVPR-skills/
+├── skills/
+│   ├── conference-cvpr/
+│   │   └── scripts/
+│   │       ├── run_pipeline.py
+│   │       └── download_cvf_pdf.py
+│   ├── cvpr-paper-reader/
+│   │   └── scripts/
+│   │       └── extract_pdf_text.py
+│   └── cvpr-idea-miner/
+│       └── scripts/
+│           └── collect_reader_notes.py
+├── examples/
+├── evals/
+├── tests/
+├── README.md
+└── requirements.txt
+```
+
+`skills/_shared/` stores shared schemas, templates, and policies. It is not a standalone skill.
+
+## Scope and Non-goals
+
+Current scope:
+
+- CVPR main conference papers.
+- CVF Open Access metadata.
+- Optional explicit CVF PDF download.
+- Local/user-provided PDF fulltext.
+- Evidence-aware reading and idea mining.
+
+Non-goals:
+
+- No automatic full-conference PDF download.
+- No workshop collection by default.
+- No OCR.
+- No code repository download.
+- No OpenAlex / Semantic Scholar / DBLP / Papers With Code enrichment.
+- No GitHub Search.
+- No claim beyond provided evidence.
+- No submission-ready paper writing without human review.
+
+## Runtime Artifacts
+
+Do not commit generated or downloaded artifacts:
+
+```text
+data/
+outputs/
+logs/
+*.pdf
+*.pdf.json
+*.sqlite
+*.db
+*.xlsx
+paper_text.md
+```
+
+`outputs/` may contain real local acceptance results, PDFs, reader notes, idea cards, Excel exports, and SQLite databases. They are runtime artifacts, not source files.
 
 ## Clean clone walkthrough
 
 For a minimal clone-to-first-run path, see `examples/clean_clone_walkthrough.md`. It covers cloning, virtualenv setup, dependency install, tests, a CVPR 2026 `--limit 5` sample run, and the transition into `cvpr-paper-reader` and `cvpr-idea-miner`.
 
+## Clean clone validation
+
+After a fresh clone, run local checks only:
+
+```bash
+python -m unittest discover -s tests
+python skills/conference-cvpr/scripts/run_pipeline.py --help
+python skills/conference-cvpr/scripts/download_cvf_pdf.py --help
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
+git diff --check
+```
+
+These checks do not run real CVF collection, call external enrichment APIs, download PDFs, parse a real PDF, or create committed runtime artifacts.
+
 ## Fulltext local validation
 
-Fulltext validation is intentionally local-only. Use a CVPR PDF already on disk or explicitly download one selected CVF PDF into the ignored outputs directory, then follow:
+Fulltext validation is local-only. Use a CVPR PDF already on disk or explicitly download one selected CVF PDF into an ignored output directory, then follow:
 
 ```text
 examples/end_to_end_demo/fulltext_case_guide.md
@@ -143,245 +350,30 @@ When a real local PDF is available, record the manual acceptance result with `ex
 
 ## CI status / testing
 
-GitHub Actions runs the local validation suite on `push` and `pull_request` using Python 3.11:
+GitHub Actions runs local validation on `push` and `pull_request` with Python 3.11:
 
 ```text
 .github/workflows/test.yml
 ```
 
-The CI job installs `requirements.txt`, runs `python -m unittest discover -s tests`, and checks the four helper CLIs with `--help`. It avoids real network collection, PDF downloads, PDF parsing, and external enrichment calls.
+The CI job installs `requirements.txt`, runs `python -m unittest discover -s tests`, and checks helper CLIs with `--help`. Downloader tests use mocks; no real network download is performed in tests.
 
-## Repository Layout
-
-```text
-CVPR-skills/
-├── .github/workflows/test.yml
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── plugin.json
-├── marketplace.json
-├── evals/
-│   ├── prompts/
-│   └── expected/
-├── examples/
-│   ├── end_to_end_demo/
-│   ├── sample_commands.md
-│   └── sample_cvpr_2026_5_papers.md
-├── scripts/
-│   └── update-codex-skills.sh
-├── skills/
-│   ├── _shared/
-│   │   ├── core/
-│   │   └── templates/
-│   ├── conference-cvpr/
-│   │   ├── README.md
-│   │   ├── SKILL.md
-│   │   ├── manifest.yaml
-│   │   ├── static/core/
-│   │   ├── references/workflows/
-│   │   └── scripts/
-│   ├── cvpr-paper-reader/
-│   │   ├── README.md
-│   │   ├── SKILL.md
-│   │   ├── manifest.yaml
-│   │   ├── static/core/
-│   │   ├── references/workflows/
-│   │   └── scripts/
-│   └── cvpr-idea-miner/
-│       ├── README.md
-│       ├── SKILL.md
-│       ├── manifest.yaml
-│       ├── static/core/
-│       ├── references/workflows/
-│       └── scripts/
-└── tests/
-    └── fixtures/
-```
-
-`skills/conference-cvpr/` 是会议级 workflow 核心；`skills/cvpr-paper-reader/` 是论文级精读 workflow；`skills/cvpr-idea-miner/` 是多篇论文/阅读笔记的 idea mining workflow。`data/`、`outputs/` 和 `logs/` 是运行产物，不提交仓库。
-
-## Install
+Current validation command set:
 
 ```bash
-cd CVPR-skills
-python3.10 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-bash scripts/update-codex-skills.sh
+python -m unittest discover -s tests
+python skills/conference-cvpr/scripts/run_pipeline.py --help
+python skills/conference-cvpr/scripts/download_cvf_pdf.py --help
+python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
+python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
+git diff --check
 ```
 
-安装脚本会同步 `skills/` 下的顶层目录到 `${CODEX_HOME:-$HOME/.codex}/skills`。如果目标目录已有同名 skill，会先备份，再合并覆盖同名文件，不删除目标目录里的额外文件。
-
-## Use
-
-在 Codex / Claude Code 中触发 `conference-cvpr` skill，例如：
-
-- 获取 CVPR 2026 论文
-- 采集 CVPR 论文
-- 构建 CVPR 数据库
-- 导出 CVPR 论文 Excel
-- 分析 CVPR 研究方向
-- 下载指定 CVPR PDF
-
-推荐一键运行完整流程：
-
-```bash
-python skills/conference-cvpr/scripts/run_pipeline.py --year 2026
-```
-
-需要分批补摘要时：
-
-```bash
-python skills/conference-cvpr/scripts/run_pipeline.py --year 2026 --enrich-pages --limit 100 --sleep 0.5 --resume
-```
-
-默认完整流程等价于：
-
-```text
-collect -> normalize -> export -> check
-```
-
-高级用法：分别运行每一步。
-
-```bash
-python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026
-python skills/conference-cvpr/scripts/normalize_cvpr.py --year 2026
-python skills/conference-cvpr/scripts/export_cvpr.py --year 2026
-python skills/conference-cvpr/scripts/check_completeness.py --year 2026
-```
-
-输出路径：
-
-```text
-data/raw/computer_vision/cvpr/{year}/cvpr_{year}_raw.json
-data/normalized/computer_vision/cvpr/{year}/cvpr_{year}_normalized.json
-outputs/computer_vision/cvpr/{year}/
-```
-
-导出格式包括 SQLite、Excel、Markdown 和 JSON；SQLite 表名为 `papers`。
-
-显式下载一篇 metadata 中已有 `pdf_url` 的论文：
-
-```bash
-python skills/conference-cvpr/scripts/download_cvf_pdf.py \
-  --metadata data/normalized/computer_vision/cvpr/2026/cvpr_2026_normalized.json \
-  --paper-id CVPR2026_000002 \
-  --output-dir outputs/computer_vision/cvpr/pdfs/2026 \
-  --dry-run
-```
-
-确认后移除 `--dry-run`，再把生成的 PDF 交给 `extract_pdf_text.py`。默认只下载一篇；不会自动下载整届，也不会下载代码仓库。
-
-触发 `cvpr-paper-reader` skill 的例子：
-
-- 精读这篇 CVPR 论文
-- 帮我读这篇 CVPR paper
-- 总结这篇 CVPR 论文
-- 提取这篇论文的方法
-- 整理实验设置和结果
-- 生成论文阅读笔记
-- 从这篇 CVPR 论文找研究灵感
-- CVPR paper reader
-- read CVPR paper
-
-本地 PDF 可以先提取文本：
-
-```bash
-python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --pdf path/to/paper.pdf --output outputs/computer_vision/cvpr/reader/{paper_id}/paper_text.md
-```
-
-论文级默认输出路径：
-
-```text
-outputs/computer_vision/cvpr/reader/{paper_id}/
-```
-
-推荐输出文件包括 `summary.md`、`method.md`、`experiments.md`、`limitations_and_ideas.md` 和 `reading_note.md`。
-
-触发 `cvpr-idea-miner` skill 的例子：
-
-- 从这些 CVPR 论文找研究灵感
-- 帮我分析 CVPR 研究空白
-- 根据这些阅读笔记生成 idea
-- 帮我做 CVPR topic map
-- 从 CVPR 2026 中找可做的研究方向
-- 根据这些论文总结未来工作
-- CVPR idea miner
-- research idea from CVPR papers
-
-它面向多篇论文或阅读笔记，默认完整流程是：
-
-```text
-topic-map -> gap-analysis -> method-recombination -> idea-cards -> experiment-plan
-```
-
-可先索引 `cvpr-paper-reader` 的本地输出：
-
-```bash
-python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --input-dir outputs/computer_vision/cvpr/reader --output outputs/computer_vision/cvpr/ideas/reader_notes_index.json
-```
-
-idea mining 推荐输出路径：
-
-```text
-outputs/computer_vision/cvpr/ideas/{year}/
-```
-
-推荐输出文件包括 `topic_map.md`、`gap_analysis.md`、`method_recombination.md`、`idea_cards.md` 和 `experiment_plan.md`。
-
-## Fast Collection And Enrichment
-
-默认采集是快速模式，主要读取 CVF 列表页可直接获得的字段：标题、作者、论文页、PDF 链接和 supplementary 链接。CVF 列表页通常不稳定提供摘要，因此 `abstract` 默认可能大量缺失。
-
-如果需要摘要级分析，请显式运行分批 enrichment：
-
-```bash
-python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages --limit 100 --sleep 0.5 --resume
-```
-
-`--enrich-pages` 会逐篇访问 `paper_page_url` 补摘要。建议配合 `--limit`、`--sleep`、`--resume` 分批进行，避免一次性请求整届会议的所有论文页。
-
-常用命令和轻量输出结构示例见 `examples/`。示例文件只展示字段形态，不包含真实完整 CVPR 2026 数据。
-
-## Analysis Guardrails
-
-`research-analysis` 必须先读取 normalized JSON 或 SQLite 并计算 `abstract_coverage`：
-
-- `abstract_coverage < 5%`：只能做 `title_only` 粗粒度 preliminary scan，并写明“当前几乎没有摘要，分析仅基于标题，不适合做细粒度技术结论”。
-- `abstract_coverage >= 50%`：可以做 `title_abstract` 初步主题归类和趋势总结，但不能声称读过全文。
-- 只有用户提供全文文本、PDF 解析文本或明确论文内容时，才进入 `fulltext_assisted`，讨论方法细节、实验设置、数据集、ablation 和结果。
-
-无论哪种模式，都不能编造代码链接、引用量、实验结果、数据集、ablation、leaderboard、项目主页或 GitHub 地址。
-
-`cvpr-paper-reader` 使用更严格的论文级证据等级：
-
-- `title_only`：只能做标题级粗略判断，不能输出方法和实验细节。
-- `abstract_only`：只能做摘要级 preliminary summary。
-- `fulltext`：可以做完整阅读笔记、方法提取、实验表、局限性和研究灵感。
-- `user_provided_notes`：可以结合用户笔记分析，但要区分原文证据和用户推断。
-
-`cvpr-idea-miner` 使用多篇论文/阅读笔记级证据等级：
-
-- `title_only`：只能做标题级粗粒度方向扫描。
-- `abstract_only`：只能做摘要级 preliminary idea，不能补实验细节。
-- `title_abstract`：可以做初步主题归类和 preliminary idea。
-- `reader_notes`：可以基于阅读笔记做 gap analysis 和 idea cards，但必须继承笔记本身的证据边界。
-- `fulltext_notes`：可以做较完整的方法组合和实验计划。
-- `user_hypothesis`：可以结合用户想法，但必须区分论文事实和用户设想。
-
-`collect_reader_notes.py` 会从 `reading_note.md`、`method.md`、`experiments.md`、`limitations_and_ideas.md` 和可选的 `reproduction_checklist.md` 建立本地索引，并记录：
-
-- `paper_id`
-- 清洗后的 `title`
-- `evidence_level`
-- 每个本地 note 文件路径
-
-常见阅读笔记标题后缀如 `中文阅读笔记`、`Reading Note`、`Paper Reading Note` 会被清理，不会进入索引标题。
+Current documented baseline: 91 tests OK on Python 3.11. The v1.5.1 README polish adds one focused README contract test.
 
 ## Evals
 
-`evals/` 提供轻量路由样例：
+`evals/` contains lightweight route and guardrail examples, including:
 
 - `collect_cvpr_2026`
 - `export_cvpr_excel`
@@ -396,26 +388,15 @@ python skills/conference-cvpr/scripts/collect_cvpr.py --year 2026 --enrich-pages
 - `title_only_no_method_details`
 - `abstract_only_no_experiment_claims`
 - `fulltext_no_hallucination`
+- `optional_pdf_download_workflow`
+- `reader_notes_filtering_and_dedupe`
+- `numeric_extraction_confidence`
+- `single_paper_topic_map_boundary`
+- `idea_feasibility_fields`
+- `reproduction_checklist_integration`
 
-这些样例用于人工或自动检查 Agent 是否选择正确 workflow，并遵守 v1 只支持 CVPR main conference papers 的范围。
+They help check that an agent chooses the right workflow and stays inside evidence boundaries.
 
-## Test
+## Design Philosophy
 
-```bash
-python -m unittest discover -s tests
-python skills/cvpr-idea-miner/scripts/collect_reader_notes.py --help
-python skills/cvpr-paper-reader/scripts/extract_pdf_text.py --help
-python skills/conference-cvpr/scripts/run_pipeline.py --help
-python skills/conference-cvpr/scripts/collect_cvpr.py --help
-python skills/conference-cvpr/scripts/normalize_cvpr.py --help
-python skills/conference-cvpr/scripts/export_cvpr.py --help
-python skills/conference-cvpr/scripts/check_completeness.py --help
-```
-
-当前发布前验证：
-
-- `48 tests OK`
-- `run_pipeline.py --help` passed
-- `extract_pdf_text.py --help` passed
-- `collect_reader_notes.py --help` passed
-- `git diff --check` passed
+Evidence first. Explicit actions. No silent downloading. No hallucinated claims. Runtime artifacts stay out of Git. Ideas are hypotheses, not paper facts.
